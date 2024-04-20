@@ -47,7 +47,7 @@ function Navbar() {
             <li>
               <Link
                 to="/boletas"
-                className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base"
+                className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base"
               >
                 Boletas
               </Link>
@@ -57,15 +57,27 @@ function Navbar() {
               <li>
                 <Link
                   to="/add-boletas"
-                  className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base"
+                  className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold"
                 >
                   Add Boletas
                 </Link>
               </li>
             )}
+
+            {user.role === "operador" && ( // Verificar si el usuario tiene el rol "admin"
+              <li>
+                <Link
+                  to="/maq"
+                  className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold"
+                >
+                  Servicios Maquinaria
+                </Link>
+              </li>
+            )}
+
             <li>
               <Link
-                className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base"
+                className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold"
                 to="/"
                 onClick={() => {
                   logout();
@@ -80,7 +92,7 @@ function Navbar() {
             <li>
               <Link
                 to="/login"
-                className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base"
+                className=" px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold"
               >
                 Login
               </Link>

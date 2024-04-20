@@ -7,6 +7,7 @@ import { useEffect } from "react";
 function RegisterPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm();
+  
   const { signup, errors: registerErrors, isAuthenticated } = useAuth();
 
   const navigate = useNavigate();
