@@ -10,14 +10,17 @@ import { BoletaProvider } from "./context/BoletasContext"
 import BoletasPage from "./pages/BoletasPage"
 import RegisterPage from "./pages/RegisterPage"
 import MaqFormPage from "./pages/MaqFormPage";
-import { MaqProvider } from "./context/MaqContext";
+import TransporteFormPage from "./pages/TransporteFormPage";
+import TransportePage from "./pages/TransportePage";
+/* import { MaqProvider } from "./context/MaqContext";
+ */import { TransporteProvider } from "./context/TransporteContext";
 import MaqPage from "./pages/MaqPage";
 
 function App() {
   return (
     <AuthProvider>
       <BoletaProvider>
-        <MaqProvider>
+        <TransporteProvider>
 
           <Router>
             <main className="container mx-auto px-2">
@@ -33,6 +36,9 @@ function App() {
                   <Route path="/add-boletas" element={<BoletasFormPage />} />
                   <Route path="/boletas" element={<BoletasPage />} />
 
+                  <Route path="/add-transporte" element={<TransporteFormPage />} />
+                  <Route path="/transporte" element={<TransportePage />} />
+
                   <Route path="/add-maq" element={<MaqFormPage />} />
                   <Route path="/maq" element={<MaqPage />} />
 
@@ -40,7 +46,7 @@ function App() {
               </Routes>
             </main>
           </Router>
-        </MaqProvider>
+        </TransporteProvider>
       </BoletaProvider>
     </AuthProvider>
   );

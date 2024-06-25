@@ -64,7 +64,8 @@ function Navbar() {
               </li>
             )}
 
-            {user.role === "operador" && ( // Verificar si el usuario tiene el rol "admin"
+
+      {/*       {user.role === "operador" && ( // Verificar si el usuario tiene el rol "admin"
               <li>
                 <Link
                   to="/maq"
@@ -73,7 +74,8 @@ function Navbar() {
                   Servicios Maquinaria
                 </Link>
               </li>
-            )}
+            )} */}
+          
 
             <li>
               <Link
