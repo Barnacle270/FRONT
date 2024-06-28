@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTransporte } from '../context/TransporteContext';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -52,7 +52,7 @@ function TransportePage() {
             <th className="text-left py-3 px-4 uppercase font-semibold text-sm text-gray-200">Acciones</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-700">
+        <tbody className="bg-indigo-600 bg-opacity-10 divide-y divide-white">
           {transporte.map((transporte) => (
             <tr key={transporte._id}>
               <td className="text-left py-3 px-4 text-gray-300">{transporte.fecha}</td>
@@ -74,7 +74,7 @@ function TransportePage() {
               <td className="text-left py-3 px-4">
                 <Link
                   to={`/edit-transporte/${transporte._id}`}
-                  className="text-indigo-600 hover:text-indigo-900"
+                  className="text-white hover:text-black"
                 >
                   Editar
                 </Link>

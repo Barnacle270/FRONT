@@ -16,6 +16,8 @@ function LoginPage() {
     signin(data)
   });
 
+  console.log(signinErrors);
+
   useEffect(() => {
     if (isAuthenticated) navigate("/")
 
