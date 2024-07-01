@@ -2,23 +2,28 @@ import { useForm } from 'react-hook-form';
 import { useTransporte } from '../context/TransporteContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function TransporteFormPage() {
-  const { register, handleSubmit, reset } = useForm(); // Obtén el método `reset`
+  const { register, handleSubmit, reset } = useForm();
   const { createTransporte, getCliente, cliente, getCamiones, camiones, errors2 } = useTransporte();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  console.log(errors2);
+  const [registroExitoso, setRegistroExitoso] = useState(false);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await createTransporte(data);
-      reset(); // Limpia los campos del formulario después de enviar con éxito
-      navigate('/add-transporte');
+      const response = await createTransporte(data);
+      if (response && response.savedTransporte) {
+        reset(); // Resetear el formulario
+        setRegistroExitoso(true); // Mostrar mensaje de éxito
+        setTimeout(() => setRegistroExitoso(false), 3000); // Ocultar el mensaje después de 3 segundos
+      } else {
+        console.log('Error al guardar transporte:', response);
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error en onSubmit:', error);
     }
   });
 
@@ -27,25 +32,42 @@ function TransporteFormPage() {
     getCamiones();
   }, []);
 
-  if (cliente.length === 0) return (
-    <h1 className="text-center text-2xl font-bold mt-8">
-      No hay servicios registrados, ir a{" "}
-      <Link
-        to={"/add-transporte"}
-        className="px-3 py-2 mt-8 bg-indigo-500 text-black rounded-md hover:bg-blue-700 focus:outline-none focus:bg-blue-600"
-      >
-        Registrar servicio
-      </Link>
-    </h1>
-  );
+  if (cliente.length === 0) {
+    return (
+      <h1 className="text-center text-2xl font-bold mt-8">
+        No hay servicios registrados, ir a{' '}
+        <Link
+          to={'/add-transporte'}
+          className="px-3 py-2 mt-8 bg-indigo-500 text-black rounded-md hover:bg-blue-700 focus:outline-none focus:bg-blue-600"
+        >
+          Registrar servicio
+        </Link>
+      </h1>
+    );
+  }
 
   if (user.role !== 'admin') {
     navigate('/');
-    return null; // Evitar que el resto del componente se renderice si el usuario no es admin
+    return null;
   }
 
   return (
     <div className="container mx-auto bg-zinc-800 p-6 rounded-lg shadow-lg">
+      {/* Mensaje de éxito */}
+      {registroExitoso && (
+        <div className="bg-green-500 p-2 text-white text-center my-2">
+          ¡Registrado exitosamente!
+        </div>
+      )}
+
+      {/* Mensajes de error */}
+      {Array.isArray(errors2) &&
+        errors2.map((error, i) => (
+          <div key={i} className="bg-red-500 p-2 text-white text-center my-2">
+            {error}
+          </div>
+        ))}
+
       <form
         onSubmit={onSubmit}
         encType="multipart/form-data"
@@ -72,7 +94,7 @@ function TransporteFormPage() {
           >
             <option value="">Seleccione un cliente</option>
             {cliente.map((client) => (
-              <option key={client._id} value={client._id}>{client.rz}</option>
+              <option key={client._id} value={client.rz}>{client.rz}</option>
             ))}
           </select>
         </div>

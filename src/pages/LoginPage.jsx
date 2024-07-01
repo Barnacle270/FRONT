@@ -10,13 +10,13 @@ function LoginPage() {
 
   const { signin, errors: signinErrors, isAuthenticated } = useAuth();
 
+  console.log(signinErrors)
+
   const navigate = useNavigate();
 
   const onSubmit = handleSubmit((data) => {
     signin(data)
   });
-
-  console.log(signinErrors);
 
   useEffect(() => {
     if (isAuthenticated) navigate("/")
