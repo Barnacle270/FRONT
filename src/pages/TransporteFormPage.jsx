@@ -1,12 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { useTransporte } from '../context/TransporteContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 
 function TransporteFormPage() {
   const { register, handleSubmit, reset } = useForm();
-  const { createTransporte, getCliente, cliente, getCamiones, camiones, errors2 } = useTransporte();
+  const { createTransporte, getCliente, getCamiones, getConductores, cliente, camiones, conductores, errors2 } = useTransporte();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -14,6 +14,9 @@ function TransporteFormPage() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      // Formatear la fecha antes de enviarla
+      data.fechat = formatDate(data.fechat); // Asumiendo que `fechat` es el nombre del campo de fecha
+
       const response = await createTransporte(data);
       if (response && response.savedTransporte) {
         reset(); // Resetear el formulario
@@ -27,24 +30,25 @@ function TransporteFormPage() {
     }
   });
 
+  // Función para formatear la fecha al formato dd-mm-yyyy
+  const formatDate = (date) => {
+    const d = new Date(date + 'T00:00:00'); // Agregar 'T00:00:00' para asegurar que se interprete como medianoche en el timezone local
+    const year = d.getFullYear();
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [day, month, year].join('-');
+  };
+
   useEffect(() => {
     getCliente();
     getCamiones();
+    getConductores();
   }, []);
 
-  if (cliente.length === 0) {
-    return (
-      <h1 className="text-center text-2xl font-bold mt-8">
-        No hay servicios registrados, ir a{' '}
-        <Link
-          to={'/add-transporte'}
-          className="px-3 py-2 mt-8 bg-indigo-500 text-black rounded-md hover:bg-blue-700 focus:outline-none focus:bg-blue-600"
-        >
-          Registrar servicio
-        </Link>
-      </h1>
-    );
-  }
 
   if (user.role !== 'admin') {
     navigate('/');
@@ -73,7 +77,6 @@ function TransporteFormPage() {
         encType="multipart/form-data"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
       >
-
         {/* fecha */}
         <div className="p-2">
           <label htmlFor="fechat" className="block mb-1 font-medium text-gray-300">Fecha</label>
@@ -160,12 +163,15 @@ function TransporteFormPage() {
         {/* conductor */}
         <div className="p-2">
           <label htmlFor="conductor" className="block mb-1 font-medium text-gray-300">Conductor</label>
-          <input
-            type="text"
-            placeholder="Conductor"
+          <select
             {...register("conductor")}
             className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          >
+            <option value="">Seleccione una conductor</option>
+            {conductores.map((conductor) => (
+              <option key={conductor._id} value={conductor.nombrec}>{conductor.nombrec}</option>
+            ))}
+          </select>
         </div>
 
         {/* tipo de servicio */}

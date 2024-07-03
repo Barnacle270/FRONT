@@ -146,13 +146,13 @@ function Navbar() {
             </li>
             <li>
               <Link
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold text-white hover:bg-zinc-600"
+                className="px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold text-white hover:bg-red-400"
                 to="/"
                 onClick={() => {
                   logout();
                 }}
               >
-                Logout
+                Salir
               </Link>
             </li>
           </>
