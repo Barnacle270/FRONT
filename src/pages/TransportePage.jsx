@@ -66,17 +66,17 @@ function TransportePage() {
 
   // Verificación inicial de transporte
   if (!transporte || !Array.isArray(transporte.docs)) {
-    return <p>Cargando transportes...</p>; // O algún indicador de carga mientras se obtienen los datos
+    return <p className="text-text-primary">Cargando transportes...</p>; // O algún indicador de carga mientras se obtienen los datos
   }
 
   // Si no hay transportes
   if (transporte.docs.length === 0) {
     return (
-      <h1 className="text-center text-2xl font-bold mt-8">
+      <h1 className="text-center text-2xl font-bold mt-8 text-text-primary">
         No hay servicios registrados, ir a{' '}
         <Link
           to="/add-transporte"
-          className="px-3 py-2 mt-8 bg-indigo-500 text-black rounded-md hover:bg-blue-700 focus:outline-none focus:bg-blue-600"
+          className="px-3 py-2 mt-8 bg-highlight text-black rounded-md hover:bg-focus focus:outline-none focus:bg-focus"
         >
           Registrar servicio
         </Link>
@@ -91,122 +91,122 @@ function TransportePage() {
   }
 
   return (
-    <div className="overflow-x-auto bg-gray-900 rounded-lg shadow-lg p-4">
-      <div className="flex justify-start items-center mb-4 space-x-4">
-        <div>
-          <label className="text-gray-300 mr-2">Fecha Inicio:</label>
-          <input
-            type="date"
-            className="bg-gray-800 text-white border border-gray-600 rounded px-2 py-1"
-            value={fechaInicio}
-            onChange={(e) => setFechaInicio(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="text-gray-300 mr-2">Fecha Fin:</label>
-          <input
-            type="date"
-            className="bg-gray-800 text-white border border-gray-600 rounded px-2 py-1"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-          />
+    <div className="overflow-x-auto bg-zinc-800 p-4 rounded">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex space-x-4">
+          <div>
+            <label className="text-text-secondary mr-2">Fecha Inicio:</label>
+            <input
+              type="date"
+              className="bg-input text-text-primary border border-gray-600 rounded px-2 py-1"
+              value={fechaInicio}
+              onChange={(e) => setFechaInicio(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-text-secondary mr-2">Fecha Fin:</label>
+            <input
+              type="date"
+              className="bg-input text-text-primary border border-gray-600 rounded px-2 py-1"
+              value={fechaFin}
+              onChange={(e) => setFechaFin(e.target.value)}
+            />
+          </div>
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 bg-button-primary text-text-primary rounded-md hover:bg-button-secondary focus:outline-none focus:bg-button-secondary"
+          >
+            Excel
+          </button>
         </div>
         <button
-          onClick={handleExport}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700 focus:outline-none focus:bg-green-600"
+          onClick={() => navigate('/add-transporte')}
+          className="px-4 py-2 bg-button-primary text-text-primary rounded-md hover:bg-button-secondary focus:outline-none focus:bg-button-secondary"
         >
-          Excel
+          Agregar servicio
         </button>
       </div>
 
       {/* Línea delgada blanca */}
-      <div className="my-4 border-t border-white"></div>
+      <div className="my-4 border-t border-text-primary"></div>
 
       {/* Tabla responsiva con scroll horizontal */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-gray-800 divide-y divide-gray-700 text-sm rounded-lg">
+        <table className="min-w-full bg-zinc-700 divide-y divide-gray-700 text-sm rounded-lg">
           <thead className="bg-zinc-700">
             <tr>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Fecha</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Cliente</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Partida</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Destino</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">G. Cliente</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Guia J</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Placa</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Conductor</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">T. Servicio</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Detalle</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">A. Devolucion</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">C. Devolucion</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Turno</th>
-              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Acciones</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Fecha</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Cliente</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Partida</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Destino</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">G. Cliente</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Guia J</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Placa</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Conductor</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">T. Servicio</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Detalle</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Turno</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-text-secondary">Acciones</th>
             </tr>
           </thead>
-          <tbody className="bg-indigo-600 bg-opacity-10 divide-y divide-white">
+          <tbody className="bg-zinc-600 divide-y divide-gray-700">
             {transporte.docs.map((transporte) => (
               <tr key={transporte._id}>
-                <td className="text-left py-2 px-3 text-gray-300">
+                <td className="text-left py-2 px-3 text-text-primary">
                   {new Date(transporte.fechat).toLocaleDateString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric',
                   })}
                 </td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.cliente}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.puntoPartida}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.puntoDestino}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.guiaRemitente}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.guiaTransportista}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.placa}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.conductor}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.tipoServicio}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.detalle}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.almacenDev}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.comprobanteDev}</td>
-                <td className="text-left py-2 px-3 text-gray-300">{transporte.turno}</td>
-                <td className="text-left py-2 px-3 text-gray-300">
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.cliente}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.puntoPartida}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.puntoDestino}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.guiaRemitente}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.guiaTransportista}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.placa}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.conductor}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.tipoServicio}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.detalle}</td>
+                <td className="text-left py-2 px-3 text-text-primary">{transporte.turno}</td>
+                <td className="text-left py-2 px-3 text-text-primary">
                   <Link
                     to={`/transporte/${transporte._id}`}
-                    className="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:bg-blue-600"
+                    className="inline-block p-2 bg-highlight text-white rounded-md hover:bg-focus focus:outline-none focus:bg-focus mb-1"
                   >
-                    Editar
+                    <i className="fas fa-edit text-sm"></i> {/* Icono de lápiz */}
                   </Link>
                   <button
                     onClick={() => handleDeleteTransporte(transporte._id)}
-                    className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-700 focus:outline-none focus:bg-red-600 ml-2"
+                    className="inline-block p-2 ml-2 bg-button-danger text-white rounded-md hover:bg-red-700 focus:outline-none focus:bg-button-danger"
                   >
-                    Eliminar
+                    <i className="fas fa-trash-alt"></i> {/* Icono de basura */}
                   </button>
                 </td>
+
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Línea delgada blanca */}
-      <div className="my-4 border-t border-white"></div>
-
-      {/* Botones de paginación */}
-      <div className="flex justify-between mt-4 space-x-2">
-        {transporte.hasPrevPage && (
-          <button
-            onClick={goToPrevPage}
-            className="px-2 py-1 bg-blue-700 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:bg-blue-600 mr-2"
-          >
-            Anterior
-          </button>
-        )}
-        <span className="text-white">Página {currentPage}</span>
-        {transporte.hasNextPage && (
-          <button
-            onClick={goToNextPage}
-            className="px-2 py-1 bg-blue-700 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:bg-blue-600"
-          >
-            Siguiente
-          </button>
-        )}
+      {/* Paginación */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={goToPrevPage}
+          disabled={!transporte.hasPrevPage}
+          className="px-4 py-2 bg-button-primary text-text-primary rounded-md hover:bg-button-secondary focus:outline-none focus:bg-button-secondary disabled:opacity-50"
+        >
+          Anterior
+        </button>
+        <span className="text-text-primary">Página {transporte.page} de {transporte.totalPages}</span>
+        <button
+          onClick={goToNextPage}
+          disabled={!transporte.hasNextPage}
+          className="px-4 py-2 bg-button-primary text-text-primary rounded-md hover:bg-button-secondary focus:outline-none focus:bg-button-secondary disabled:opacity-50"
+        >
+          Siguiente
+        </button>
       </div>
     </div>
   );

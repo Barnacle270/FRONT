@@ -66,6 +66,7 @@ export function TransporteProvider({ children }) {
     }
   };
 
+
   const deleteTransporte = async (id) => {
     try {
       const res = await deleteTransporteRequest(id);

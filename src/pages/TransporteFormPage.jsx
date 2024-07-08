@@ -76,14 +76,11 @@ function TransporteFormPage() {
         setValue('conductor', transporte.conductor);
         setValue('tipoServicio', transporte.tipoServicio);
         setValue('detalle', transporte.detalle);
-        setValue('almacenDev', transporte.almacenDev);
-        setValue('comprobanteDev', transporte.comprobanteDev);
         setValue('estado', transporte.estado);
         setValue('turno', transporte.turno);
-        setValue('planilla', transporte.planilla);
-        setValue('combustible', transporte.combustible);
       }
     };
+
     loadTransporte();
     getCliente();
     getCamiones();
@@ -215,16 +212,25 @@ function TransporteFormPage() {
           </select>
         </div>
 
-        {/* tipo de servicio */}
+        {/* tipo de servicio / select*/}
         <div className="p-2">
           <label htmlFor="tipoServicio" className="block mb-1 font-medium text-gray-300">Tipo de Servicio</label>
-          <input
-            type="text"
-            placeholder="Tipo de Servicio"
+          <select
             {...register("tipoServicio")}
             className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          >
+            <option value="">Seleccione un tipo de servicio</option>
+            <option value="RETIRO">RETIRO</option>
+            <option value="SERVICIO">SERVICIO</option>
+            <option value="DEVOLUCION">DEVOLUCION</option>
+            <option value="ASIGNACION">ASIGNACION</option>
+            <option value="EXPORTACION">EXPORTACION</option>
+            <option value="CARGA SUELTA">CARGA SUELTA</option>
+            <option value="TOLVA">TOLVA</option>
+          </select>
         </div>
+
+
 
         {/* detalle */}
         <div className="p-2">
@@ -237,27 +243,20 @@ function TransporteFormPage() {
           />
         </div>
 
-        {/* almacen de devolucion */}
+        {/* turno SELECT */ }
+
         <div className="p-2">
-          <label htmlFor="almacenDev" className="block mb-1 font-medium text-gray-300">Almacén de Devolución</label>
-          <input
-            type="text"
-            placeholder="Almacén de Devolución"
-            {...register("almacenDev")}
-            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          <label htmlFor="turno" className="block mb-1 font-medium text-gray-300">Turno</label>
+          <select
+            {...register("turno")}
+            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+          >
+            <option value="">Seleccione un turno</option>
+            <option value="NORMAL">NORMAL</option>
+            <option value="F. HORA">F. HORA</option>
+          </select>
         </div>
 
-        {/* comprobante de devolucion */}
-        <div className="p-2">
-          <label htmlFor="comprobanteDev" className="block mb-1 font-medium text-gray-300">Comprobante de Devolución</label>
-          <input
-            type="text"
-            placeholder="Comprobante de Devolución"
-            {...register("comprobanteDev")}
-            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
 
         {/* estado */}
         <div className="p-2">
@@ -265,48 +264,16 @@ function TransporteFormPage() {
           <input
             type="text"
             placeholder="Estado"
+            disabled
             {...register("estado")}
             className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
-        {/* turno */}
-        <div className="p-2">
-          <label htmlFor="turno" className="block mb-1 font-medium text-gray-300">Turno</label>
-          <input
-            type="text"
-            placeholder="Turno"
-            {...register("turno")}
-            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* planilla */}
-        <div className="p-2">
-          <label htmlFor="planilla" className="block mb-1 font-medium text-gray-300">Planilla</label>
-          <input
-            type="text"
-            placeholder="Planilla"
-            {...register("planilla")}
-            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* combustible */}
-        <div className="p-2">
-          <label htmlFor="combustible" className="block mb-1 font-medium text-gray-300">Combustible</label>
-          <input
-            type="text"
-            placeholder="Combustible"
-            {...register("combustible")}
-            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
         {/* Botón de guardar */}
-        <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex justify-center mt-4">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex justify-center mt-2">
           <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-8 py-3 rounded-md shadow-lg transition duration-300 transform hover:scale-105">
-            Save
+            Guardar
           </button>
         </div>
       </form>

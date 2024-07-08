@@ -27,15 +27,12 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-zinc-700 my-3 py-5 px-10 rounded-lg md:flex md:justify-between md:items-center">
+    <nav className="bg-navbar my-3 py-5 px-10 rounded-lg md:flex md:justify-between md:items-center">
       <div className="flex items-center justify-between">
         <Link to={isAuthenticated ? "/" : "/"}>
           <h1 className="text-2xl font-bold text-white">TRANSPORTE J</h1>
         </Link>
-        <button
-          className="md:hidden focus:outline-none"
-          onClick={toggleMenu}
-        >
+        <button className="md:hidden focus:outline-none" onClick={toggleMenu}>
           <svg
             className="w-6 h-6 text-white"
             fill="none"
@@ -53,15 +50,13 @@ function Navbar() {
           </svg>
         </button>
       </div>
-      <ul
-        className={`${menuOpen ? "block" : "hidden"} md:flex md:gap-x-2 md:items-center md:justify-center`}
-      >
+      <ul className={`${menuOpen ? "block" : "hidden"} md:flex md:gap-x-2 md:items-center md:justify-center`}>
         {isAuthenticated ? (
           <>
             <li className="relative">
               <button
                 onClick={toggleBoletasDropdown}
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-zinc-600"
+                className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-surface"
               >
                 Boletas
                 <svg
@@ -77,11 +72,11 @@ function Navbar() {
                 </svg>
               </button>
               {boletasDropdownOpen && (
-                <ul className="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg">
+                <ul className="absolute left-0 mt-2 w-40 bg-surface border border-gray-700 rounded-md shadow-lg">
                   <li>
                     <Link
                       to="/boletas"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
                       onClick={() => setBoletasDropdownOpen(false)}
                     >
                       Boletas
@@ -91,7 +86,7 @@ function Navbar() {
                     <li>
                       <Link
                         to="/add-boletas"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
                         onClick={() => setBoletasDropdownOpen(false)}
                       >
                         Agregar Boletas
@@ -104,7 +99,7 @@ function Navbar() {
             <li className="relative">
               <button
                 onClick={toggleTransporteDropdown}
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-zinc-600"
+                className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-surface"
               >
                 Transporte
                 <svg
@@ -120,11 +115,11 @@ function Navbar() {
                 </svg>
               </button>
               {transporteDropdownOpen && (
-                <ul className="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg">
+                <ul className="absolute left-0 mt-2 w-40 bg-surface border border-gray-700 rounded-md shadow-lg">
                   <li>
                     <Link
                       to="/transporte"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
                       onClick={() => setTransporteDropdownOpen(false)}
                     >
                       Servicios
@@ -134,10 +129,21 @@ function Navbar() {
                     <li>
                       <Link
                         to="/add-transporte"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
                         onClick={() => setTransporteDropdownOpen(false)}
                       >
                         Agregar Servicio
+                      </Link>
+                    </li>
+                  )}
+                   {user.role === "admin" && (
+                    <li>
+                      <Link
+                        to="/contenedores"
+                        className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
+                        onClick={() => setTransporteDropdownOpen(false)}
+                      >
+                        Devoluciones
                       </Link>
                     </li>
                   )}
@@ -161,7 +167,7 @@ function Navbar() {
             <li>
               <Link
                 to="/login"
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold text-white hover:bg-zinc-600"
+                className="px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold text-white hover:bg-surface"
               >
                 Login
               </Link>
