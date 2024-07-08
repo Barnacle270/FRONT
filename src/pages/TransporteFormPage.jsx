@@ -1,54 +1,94 @@
 import { useForm } from 'react-hook-form';
 import { useTransporte } from '../context/TransporteContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 
 function TransporteFormPage() {
-  const { register, handleSubmit, reset } = useForm();
-  const { createTransporte, getCliente, getCamiones, getConductores, cliente, camiones, conductores, errors2 } = useTransporte();
+  const { register, handleSubmit, setValue, reset } = useForm();
+  const { createTransporte, updateTransporte, getTransporteById, getCliente, getCamiones, getConductores, cliente, camiones, conductores, errors2 } = useTransporte();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const params = useParams(); // Obtener el ID de la URL si es una edición
+  const [mensajeExito, setMensajeExito] = useState(null);
 
-  const [registroExitoso, setRegistroExitoso] = useState(false);
 
-  const onSubmit = handleSubmit(async (data) => {
+  const handleUpdateTransporte = async (data) => {
     try {
-      // Formatear la fecha antes de enviarla
-      data.fechat = formatDate(data.fechat); // Asumiendo que `fechat` es el nombre del campo de fecha
-
-      const response = await createTransporte(data);
-      if (response && response.savedTransporte) {
-        reset(); // Resetear el formulario
-        setRegistroExitoso(true); // Mostrar mensaje de éxito
-        setTimeout(() => setRegistroExitoso(false), 3000); // Ocultar el mensaje después de 3 segundos
-      } else {
-        console.log('Error al guardar transporte:', response);
-      }
+      await updateTransporte(params.id, {
+        ...data,
+        fechat: dayjs(data.fechat).utc().format(),
+      });
+      //mostrar mensaje de exito por 2 segundos y luero redireccionar
+      setMensajeExito('¡Operación de actualización realizada con éxito!');
+      setTimeout(() => {
+        setMensajeExito(null);
+        navigate('/transporte');
+      }, 1000);
     } catch (error) {
-      console.error('Error en onSubmit:', error);
+      console.error('Error en la actualización:', error);
     }
-  });
-
-  // Función para formatear la fecha al formato dd-mm-yyyy
-  const formatDate = (date) => {
-    const d = new Date(date + 'T00:00:00'); // Agregar 'T00:00:00' para asegurar que se interprete como medianoche en el timezone local
-    const year = d.getFullYear();
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [day, month, year].join('-');
   };
 
+  // Función para manejar la creación de un nuevo transporte
+  const handleCreateTransporte = async (data) => {
+    try {
+      await createTransporte({
+        ...data,
+        fechat: dayjs(data.fechat).utc().format(),
+      });
+
+      //mostrar mensaje de exito por 2 segundos y luero resetear
+      setMensajeExito('¡Operación de creación realizada con éxito!');
+      setTimeout(() => {
+        setMensajeExito(null);
+      }
+        , 4000);
+      reset();
+    } catch (error) {
+      console.error('Error en la creación:', error);
+    }
+  };
+
+  const onSubmit = (data) => {
+    if (params.id) {
+      handleUpdateTransporte(data);
+    } else {
+      handleCreateTransporte(data);
+    }
+  };
+
+
   useEffect(() => {
+    const loadTransporte = async () => {
+      if (params.id) {
+        const transporte = await getTransporteById(params.id);
+        setValue('fechat', dayjs(transporte.fechat).format('YYYY-MM-DD'));
+        setValue('cliente', transporte.cliente);
+        setValue('puntoPartida', transporte.puntoPartida);
+        setValue('puntoDestino', transporte.puntoDestino);
+        setValue('guiaRemitente', transporte.guiaRemitente);
+        setValue('guiaTransportista', transporte.guiaTransportista);
+        setValue('placa', transporte.placa);
+        setValue('conductor', transporte.conductor);
+        setValue('tipoServicio', transporte.tipoServicio);
+        setValue('detalle', transporte.detalle);
+        setValue('almacenDev', transporte.almacenDev);
+        setValue('comprobanteDev', transporte.comprobanteDev);
+        setValue('estado', transporte.estado);
+        setValue('turno', transporte.turno);
+        setValue('planilla', transporte.planilla);
+        setValue('combustible', transporte.combustible);
+      }
+    };
+    loadTransporte();
     getCliente();
     getCamiones();
     getConductores();
-  }, []);
-
+  }, []); // Asegúrate de incluir id en la dependencia para que se vuelva a cargar cuando cambie
 
   if (user.role !== 'admin') {
     navigate('/');
@@ -57,10 +97,11 @@ function TransporteFormPage() {
 
   return (
     <div className="container mx-auto bg-zinc-800 p-6 rounded-lg shadow-lg">
+
       {/* Mensaje de éxito */}
-      {registroExitoso && (
+      {mensajeExito && (
         <div className="bg-green-500 p-2 text-white text-center my-2">
-          ¡Registrado exitosamente!
+          {mensajeExito}
         </div>
       )}
 
@@ -73,7 +114,7 @@ function TransporteFormPage() {
         ))}
 
       <form
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         encType="multipart/form-data"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
       >

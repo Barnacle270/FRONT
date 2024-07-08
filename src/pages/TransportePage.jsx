@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 function TransportePage() {
-  const { transporte, getTransporte } = useTransporte();
+  const { transporte, getTransporte, deleteTransporte } = useTransporte();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,19 +13,17 @@ function TransportePage() {
   const [fechaFin, setFechaFin] = useState('');
 
   useEffect(() => {
-    getTransporte(1); // Cargar la primera página al montar el componente
-  }, []);
+    getTransporte(currentPage); // Cargar la página actual al montar el componente
+  }, [currentPage]); // Asegúrate de que se vuelva a cargar cuando cambia la página actual
 
   const goToNextPage = () => {
     if (transporte.hasNextPage) {
-      getTransporte(transporte.nextPage); // Llama a la función de obtener transporte con la siguiente página
       setCurrentPage(transporte.nextPage); // Actualiza la página actual
     }
   };
 
   const goToPrevPage = () => {
     if (transporte.hasPrevPage) {
-      getTransporte(transporte.prevPage); // Llama a la función de obtener transporte con la página anterior
       setCurrentPage(transporte.prevPage); // Actualiza la página actual
     }
   };
@@ -47,6 +45,22 @@ function TransportePage() {
       link.click();
     } catch (error) {
       console.error('Error al exportar datos:', error);
+    }
+  };
+
+  const handleDeleteTransporte = async (id) => {
+    // Mostrar mensaje de confirmación
+    const confirmDelete = window.confirm(`¿Estás seguro que deseas eliminar este servicio?`);
+    if (!confirmDelete) {
+      return; // Si el usuario cancela, no proceder con la eliminación
+    }
+
+    try {
+      await deleteTransporte(id);
+      // Después de eliminar, cargar nuevamente la página actual para actualizar la lista
+      getTransporte(currentPage);
+    } catch (error) {
+      console.error('Error al eliminar transporte:', error);
     }
   };
 
@@ -108,52 +122,68 @@ function TransportePage() {
       {/* Línea delgada blanca */}
       <div className="my-4 border-t border-white"></div>
 
-
-      <table className="min-w-full bg-gray-800 divide-y divide-gray-700 text-sm rounded-lg">
-        <thead className="bg-zinc-700">
-          <tr>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Fecha</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Cliente</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Partida</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Destino</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">G. Cliente</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Guia J</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Placa</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Conductor</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">T. Servicio</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Detalle</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">A. Devolucion</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">C. Devolucion</th>
-            <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Turno</th>
-          </tr>
-        </thead>
-        <tbody className="bg-indigo-600 bg-opacity-10 divide-y divide-white">
-          {transporte.docs.map(transporte => (
-            <tr key={transporte._id}>
-              <td className="text-left py-2 px-3 text-gray-300">
-                {new Date(transporte.fechat).toLocaleDateString('es-ES', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric'
-                })}
-              </td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.cliente}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.puntoPartida}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.puntoDestino}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.guiaRemitente}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.guiaTransportista}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.placa}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.conductor}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.tipoServicio}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.detalle}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.almacenDev}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.comprobanteDev}</td>
-              <td className="text-left py-2 px-3 text-gray-300">{transporte.turno}</td>
-              {/* Añade más columnas según tus necesidades */}
+      {/* Tabla responsiva con scroll horizontal */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-gray-800 divide-y divide-gray-700 text-sm rounded-lg">
+          <thead className="bg-zinc-700">
+            <tr>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Fecha</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Cliente</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Partida</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Destino</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">G. Cliente</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Guia J</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Placa</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Conductor</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">T. Servicio</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Detalle</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">A. Devolucion</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">C. Devolucion</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Turno</th>
+              <th className="text-left py-2 px-3 uppercase font-semibold text-gray-200">Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-indigo-600 bg-opacity-10 divide-y divide-white">
+            {transporte.docs.map((transporte) => (
+              <tr key={transporte._id}>
+                <td className="text-left py-2 px-3 text-gray-300">
+                  {new Date(transporte.fechat).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                  })}
+                </td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.cliente}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.puntoPartida}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.puntoDestino}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.guiaRemitente}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.guiaTransportista}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.placa}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.conductor}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.tipoServicio}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.detalle}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.almacenDev}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.comprobanteDev}</td>
+                <td className="text-left py-2 px-3 text-gray-300">{transporte.turno}</td>
+                <td className="text-left py-2 px-3 text-gray-300">
+                  <Link
+                    to={`/transporte/${transporte._id}`}
+                    className="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:bg-blue-600"
+                  >
+                    Editar
+                  </Link>
+                  <button
+                    onClick={() => handleDeleteTransporte(transporte._id)}
+                    className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-700 focus:outline-none focus:bg-red-600 ml-2"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Línea delgada blanca */}
       <div className="my-4 border-t border-white"></div>

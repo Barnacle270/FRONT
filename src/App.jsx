@@ -26,6 +26,7 @@ function App() {
             <main className="container mx-auto px-2">
               <Navbar />
               <Routes>
+              
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
 
@@ -36,8 +37,9 @@ function App() {
                   <Route path="/add-boletas" element={<BoletasFormPage />} />
                   <Route path="/boletas" element={<BoletasPage />} />
 
-                  <Route path="/add-transporte" element={<TransporteFormPage />} />
                   <Route path="/transporte" element={<TransportePage />} />
+                  <Route path="/add-transporte" element={<TransporteFormPage />} />
+                  <Route path="/transporte/:id" element={<TransporteFormPage />} />
 
                   <Route path="/add-maq" element={<MaqFormPage />} />
                   <Route path="/maq" element={<MaqPage />} />

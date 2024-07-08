@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { createTransporteRequest, getTransporteRequest, getClienteRequest, getCamionesRequest, getConductoresRequest } from "../api/Transporte.js";
+import { createTransporteRequest, getTransporteRequest, updateTransporteRequest, getClienteRequest, getCamionesRequest, getConductoresRequest, getTransporteByIdRequest, deleteTransporteRequest } from "../api/Transporte.js";
 
 const TransporteContext = createContext();
 
@@ -32,11 +32,17 @@ export function TransporteProvider({ children }) {
   const createTransporte = async (newTransporte) => {
     try {
       const res = await createTransporteRequest(newTransporte);
-      if (res.data.savedTransporte) {
-        return res.data;
-      } else {
-        throw new Error('Error al guardar transporte');
-      }
+      console.log(res.data);
+    } catch (error) {
+      setErrors2(error.response.data.msg);
+      throw error;
+    }
+  };
+
+  const updateTransporte = async (id, task) => {
+    try {
+      const res = await updateTransporteRequest(id, task);
+      console.log(res.data)
     } catch (error) {
       setErrors2(error.response.data.msg);
       throw error;
@@ -51,6 +57,24 @@ export function TransporteProvider({ children }) {
       console.log(error);
     }
   }
+  const getTransporteById = async (id) => {
+    try {
+      const res = await getTransporteByIdRequest(id);
+      return res.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const deleteTransporte = async (id) => {
+    try {
+      const res = await deleteTransporteRequest(id);
+      if (res.status === 204) setTransporte(transporte.filter((transporte) => transporte._id !== id));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
   const getCliente = async () => {
     try {
@@ -87,9 +111,12 @@ export function TransporteProvider({ children }) {
       errors2,
       createTransporte,
       getTransporte,
+      updateTransporte,
+      deleteTransporte,
       getCliente,
       getCamiones,
-      getConductores
+      getConductores,
+      getTransporteById
     }}>
       {children}
     </TransporteContext.Provider>
