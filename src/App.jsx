@@ -15,6 +15,8 @@ import TransportePage from "./pages/TransportePage";
 /* import { MaqProvider } from "./context/MaqContext";
  */import { TransporteProvider } from "./context/TransporteContext";
 import MaqPage from "./pages/MaqPage";
+import DevolucionesPage from "./pages/DevolucionesPage";
+import DevolucionFormPage from "./pages/DevolucionFormPage";
 
 function App() {
   return (
@@ -40,6 +42,10 @@ function App() {
                   <Route path="/transporte" element={<TransportePage />} />
                   <Route path="/add-transporte" element={<TransporteFormPage />} />
                   <Route path="/transporte/:id" element={<TransporteFormPage />} />
+
+                  <Route path="/contenedores" element={<DevolucionesPage />} />
+                  <Route path="/add-contenedores" element={<DevolucionFormPage />} />
+                  <Route path="/contenedores/:id" element={<DevolucionFormPage />} />
 
                   <Route path="/add-maq" element={<MaqFormPage />} />
                   <Route path="/maq" element={<MaqPage />} />

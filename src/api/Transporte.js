@@ -10,6 +10,10 @@ export const getTransporteByIdRequest = (id) => axios.get(`/transporte/${id}`);
 export const deleteTransporteRequest = (id) =>
   axios.delete(`/transporte/${id}`);
 
+export const getDevolucionesRequest = () => axios.get(`/devoluciones`);
+export const updateDevolucionesRequest = (id, devolucion) =>
+  axios.put(`/devoluciones/${id}`, devolucion);
+export const getDevolucionesByIdRequest = (id) => axios.get(`/devoluciones/${id}`);
 
 export const createClienteRequest = (cliente) =>
   axios.post(`/cliente`, cliente);

@@ -31,7 +31,7 @@ function TransportePage() {
   const handleExport = async () => {
     try {
       const response = await axios.post(
-        'http://localhost:4000/api/transporte/generar-excel',
+        'https://servidor.transportej.com/api/transporte/generar-excel',
         { fechaInicio, fechaFin },
         { responseType: 'blob' } // Para manejar la descarga de archivos binarios
       );

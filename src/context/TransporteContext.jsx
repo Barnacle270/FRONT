@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { createTransporteRequest, getTransporteRequest, updateTransporteRequest, getClienteRequest, getCamionesRequest, getConductoresRequest, getTransporteByIdRequest, deleteTransporteRequest } from "../api/Transporte.js";
+import { createTransporteRequest, getTransporteRequest, updateTransporteRequest, getClienteRequest, getCamionesRequest, getConductoresRequest, getTransporteByIdRequest, deleteTransporteRequest, getDevolucionesRequest, updateDevolucionesRequest, getDevolucionesByIdRequest } from "../api/Transporte.js";
 
 const TransporteContext = createContext();
 
@@ -16,6 +16,7 @@ export function TransporteProvider({ children }) {
   const [cliente, setCliente] = useState([]);
   const [camiones, setCamiones] = useState([]);
   const [conductores, setConductores] = useState([]);
+  const [devoluciones, setDevoluciones] = useState([]);	
   const [errors2, setErrors2] = useState([]);
 
   // clear errors after 5 seconds
@@ -103,12 +104,41 @@ export function TransporteProvider({ children }) {
     }
   }
 
+  const getDevoluciones = async () => {
+    try {
+      const res = await getDevolucionesRequest();
+      setDevoluciones(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const updateDevoluciones = async (id, task) => {
+    try {
+      const res = await updateDevolucionesRequest(id, task);
+      console.log(res.data)
+    } catch (error) {
+      console.log(error.response.data.msg);
+      throw error;
+    }
+  };
+
+  const getDevolucionesById = async (id) => {
+    try {
+      const res = await getDevolucionesByIdRequest(id);
+      return res.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <TransporteContext.Provider value={{
       transporte,
       cliente,
       camiones,
       conductores,
+      devoluciones,
       errors2,
       createTransporte,
       getTransporte,
@@ -117,7 +147,10 @@ export function TransporteProvider({ children }) {
       getCliente,
       getCamiones,
       getConductores,
-      getTransporteById
+      getTransporteById,
+      getDevoluciones,
+      getDevolucionesById,
+      updateDevoluciones
     }}>
       {children}
     </TransporteContext.Provider>

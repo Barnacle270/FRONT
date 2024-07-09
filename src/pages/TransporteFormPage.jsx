@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 
+
 function TransporteFormPage() {
   const { register, handleSubmit, setValue, reset } = useForm();
   const { createTransporte, updateTransporte, getTransporteById, getCliente, getCamiones, getConductores, cliente, camiones, conductores, errors2 } = useTransporte();
@@ -14,13 +15,19 @@ function TransporteFormPage() {
   const { user } = useAuth();
   const params = useParams(); // Obtener el ID de la URL si es una edición
   const [mensajeExito, setMensajeExito] = useState(null);
+  const [devuelto, setDevuelto] = useState(false); // Estado del checkbox
+  const [estadoInicial, setEstadoInicial] = useState('PENDIENTE'); // Estado inicial del formulario
 
 
   const handleUpdateTransporte = async (data) => {
     try {
+      const estadoFinal = devuelto ? 'DEVUELTO' : estadoInicial;
+
       await updateTransporte(params.id, {
         ...data,
         fechat: dayjs(data.fechat).utc().format(),
+        estado: estadoFinal, // Usar el estadoFinal calculado
+
       });
       //mostrar mensaje de exito por 2 segundos y luero redireccionar
       setMensajeExito('¡Operación de actualización realizada con éxito!');
@@ -61,6 +68,21 @@ function TransporteFormPage() {
     }
   };
 
+  const handleChangeDevuelto = (e) => {
+    const isChecked = e.target.checked;
+    if (isChecked) {
+      const confirmacion = window.confirm('¿Estás seguro que quieres cambiar el estado del contenedor a "DEVUELTO"?');
+      if (confirmacion) {
+        setDevuelto(true);
+      } else {
+        e.preventDefault(); // Evita marcar el checkbox si se cancela
+      }
+    } else {
+      setDevuelto(false);
+    }
+  };
+
+
 
   useEffect(() => {
     const loadTransporte = async () => {
@@ -78,6 +100,10 @@ function TransporteFormPage() {
         setValue('detalle', transporte.detalle);
         setValue('estado', transporte.estado);
         setValue('turno', transporte.turno);
+
+        setDevuelto(transporte.estado === 'DEVUELTO');
+        setEstadoInicial(transporte.estado); // Guardar el estado inicial
+
       }
     };
 
@@ -243,13 +269,13 @@ function TransporteFormPage() {
           />
         </div>
 
-        {/* turno SELECT */ }
+        {/* turno SELECT */}
 
         <div className="p-2">
           <label htmlFor="turno" className="block mb-1 font-medium text-gray-300">Turno</label>
           <select
             {...register("turno")}
-            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="">Seleccione un turno</option>
             <option value="NORMAL">NORMAL</option>
@@ -269,6 +295,18 @@ function TransporteFormPage() {
             className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
+
+        {/* Checkbox para Devuelto */}
+        <div className="p-2">
+          <label className="block mb-1 font-medium text-gray-300">¿Devuelto?</label>
+          <input
+            type="checkbox"
+            checked={devuelto}
+            onChange={handleChangeDevuelto}
+            className="mr-2"
+          />
+        </div>
+
 
         {/* Botón de guardar */}
         <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex justify-center mt-2">
