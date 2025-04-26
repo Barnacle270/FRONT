@@ -97,23 +97,26 @@ function Navbar() {
               )}
             </li>
             <li className="relative">
-              <button
-                onClick={toggleTransporteDropdown}
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-surface"
-              >
-                Transporte
-                <svg
-                  className="w-4 h-4 inline-block ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
+              {user.role === "admin" && (
+
+                <button
+                  onClick={toggleTransporteDropdown}
+                  className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-surface"
                 >
-                  <path d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
+                  Transporte
+                  <svg
+                    className="w-4 h-4 inline-block ml-1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                )}
               {transporteDropdownOpen && (
                 <ul className="absolute left-0 mt-2 w-40 bg-surface border border-gray-700 rounded-md shadow-lg">
                   <li>
@@ -136,7 +139,7 @@ function Navbar() {
                       </Link>
                     </li>
                   )}
-                   {user.role === "admin" && (
+                  {user.role === "admin" && (
                     <li>
                       <Link
                         to="/contenedores"

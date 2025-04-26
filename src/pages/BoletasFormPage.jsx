@@ -83,8 +83,7 @@ function BoletasFormPage() {
             {...register("year")}
             className='w-full bg-zinc-700 text-white px-4 py-2 rounded-mb my-2'
           >
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
+            <option value="2025">2025</option>
           </select>
 
           <label htmlFor="image">Archivo</label>
