@@ -6,8 +6,6 @@ export default {
       backgroundColor: {
         background: "#202020",
         surface: "#2E2E2E",
-        "text-primary": "#FFFFFF",
-        "text-secondary": "#B0B0B0",
         navbar: "#3A3A3A",
         "button-primary": "#6C757D",
         "button-secondary": "#A5A5A5",
@@ -16,6 +14,19 @@ export default {
         focus: "#00BFA5",
         card: "#2E2E2E",
         input: "#1C1C1C",
+      },
+      textColor: {
+        "text-primary": "#FFFFFF",
+        "text-secondary": "#B0B0B0",
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-out forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'scale(0.95)' },
+          '100%': { opacity: 1, transform: 'scale(1)' },
+        },
       },
     },
   },

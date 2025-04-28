@@ -1,181 +1,106 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { ChevronDown, Menu, X } from "lucide-react"; // Usar buenos íconos opcionalmente
 
 function Navbar() {
   const { isAuthenticated, logout, user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [boletasDropdownOpen, setBoletasDropdownOpen] = useState(false);
-  const [transporteDropdownOpen, setTransporteDropdownOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+  const toggleDropdown = (menu) => {
+    setActiveDropdown((prev) => (prev === menu ? null : menu));
   };
 
-  const toggleBoletasDropdown = () => {
-    setBoletasDropdownOpen(!boletasDropdownOpen);
-    if (transporteDropdownOpen) {
-      setTransporteDropdownOpen(false);
-    }
-  };
-
-  const toggleTransporteDropdown = () => {
-    setTransporteDropdownOpen(!transporteDropdownOpen);
-    if (boletasDropdownOpen) {
-      setBoletasDropdownOpen(false);
-    }
+  const closeAll = () => {
+    setMenuOpen(false);
+    setActiveDropdown(null);
   };
 
   return (
-    <nav className="bg-navbar my-3 py-5 px-10 rounded-lg md:flex md:justify-between md:items-center">
+    <nav className="bg-navbar sticky top-0 z-50 shadow-md my-3 py-4 px-6 rounded-lg md:flex md:justify-between md:items-center">
       <div className="flex items-center justify-between">
-        <Link to={isAuthenticated ? "/" : "/"}>
+        <Link to="/" onClick={closeAll}>
           <h1 className="text-2xl font-bold text-white">TRANSPORTE J</h1>
         </Link>
-        <button className="md:hidden focus:outline-none" onClick={toggleMenu}>
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            {menuOpen ? (
-              <path d="M6 18L18 6M6 6l12 12"></path>
-            ) : (
-              <path d="M4 6h16M4 12h16M4 18h16"></path>
-            )}
-          </svg>
+        <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
-      <ul className={`${menuOpen ? "block" : "hidden"} md:flex md:gap-x-2 md:items-center md:justify-center`}>
+
+      <ul className={`${menuOpen ? "block" : "hidden"} md:flex md:items-center md:gap-x-6`}>
         {isAuthenticated ? (
           <>
-            <li className="relative">
+            {/* Boletas */}
+            <li className="relative group">
               <button
-                onClick={toggleBoletasDropdown}
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-surface"
+                onClick={() => toggleDropdown('boletas')}
+                className="flex items-center gap-1 text-white font-semibold hover:bg-surface px-3 py-2 rounded transition"
               >
-                Boletas
-                <svg
-                  className="w-4 h-4 inline-block ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M19 9l-7 7-7-7"></path>
-                </svg>
+                Boletas <ChevronDown className={`w-4 h-4 transform transition ${activeDropdown === 'boletas' ? 'rotate-180' : ''}`} />
               </button>
-              {boletasDropdownOpen && (
-                <ul className="absolute left-0 mt-2 w-40 bg-surface border border-gray-700 rounded-md shadow-lg">
+              {activeDropdown === 'boletas' && (
+                <ul className="absolute mt-2 w-40 bg-surface border border-gray-600 rounded-md shadow-lg animate-fade-in">
                   <li>
-                    <Link
-                      to="/boletas"
-                      className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
-                      onClick={() => setBoletasDropdownOpen(false)}
-                    >
-                      Boletas
-                    </Link>
+                    <Link to="/boletas" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Ver Boletas</Link>
                   </li>
                   {user.role === "admin" && (
                     <li>
-                      <Link
-                        to="/add-boletas"
-                        className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
-                        onClick={() => setBoletasDropdownOpen(false)}
-                      >
-                        Agregar Boletas
-                      </Link>
+                      <Link to="/add-boletas" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Agregar Boleta</Link>
                     </li>
                   )}
                 </ul>
               )}
             </li>
-            <li className="relative">
-              {user.role === "admin" && (
 
+            {/* Transporte */}
+            {user.role === "admin" && (
+              <li className="relative group">
                 <button
-                  onClick={toggleTransporteDropdown}
-                  className="px-3 py-2 rounded-sm block md:inline-block text-sm font-bold md:text-base text-white focus:outline-none hover:bg-surface"
+                  onClick={() => toggleDropdown('transporte')}
+                  className="flex items-center gap-1 text-white font-semibold hover:bg-surface px-3 py-2 rounded transition"
                 >
-                  Transporte
-                  <svg
-                    className="w-4 h-4 inline-block ml-1"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M19 9l-7 7-7-7"></path>
-                  </svg>
+                  Transporte <ChevronDown className={`w-4 h-4 transform transition ${activeDropdown === 'transporte' ? 'rotate-180' : ''}`} />
                 </button>
+                {activeDropdown === 'transporte' && (
+                  <ul className="absolute mt-2 w-40 bg-surface border border-gray-600 rounded-md shadow-lg animate-fade-in">
+                    <li>
+                      <Link to="/transporte" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Servicios</Link>
+                    </li>
+                    <li>
+                      <Link to="/add-transporte" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Agregar Servicio</Link>
+                    </li>
+                    <li>
+                      <Link to="/contenedores" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Devoluciones</Link>
+                    </li>
+                  </ul>
                 )}
-              {transporteDropdownOpen && (
-                <ul className="absolute left-0 mt-2 w-40 bg-surface border border-gray-700 rounded-md shadow-lg">
-                  <li>
-                    <Link
-                      to="/transporte"
-                      className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
-                      onClick={() => setTransporteDropdownOpen(false)}
-                    >
-                      Servicios
-                    </Link>
-                  </li>
-                  {user.role === "admin" && (
-                    <li>
-                      <Link
-                        to="/add-transporte"
-                        className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
-                        onClick={() => setTransporteDropdownOpen(false)}
-                      >
-                        Agregar Servicio
-                      </Link>
-                    </li>
-                  )}
-                  {user.role === "admin" && (
-                    <li>
-                      <Link
-                        to="/contenedores"
-                        className="block px-4 py-2 text-sm text-text-secondary hover:bg-gray-700"
-                        onClick={() => setTransporteDropdownOpen(false)}
-                      >
-                        Devoluciones
-                      </Link>
-                    </li>
-                  )}
-                </ul>
-              )}
-            </li>
+              </li>
+            )}
+
+            {/* Logout */}
             <li>
-              <Link
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold text-white hover:bg-red-400"
-                to="/"
+              <button
                 onClick={() => {
                   logout();
+                  closeAll();
                 }}
+                className="text-white font-bold bg-red-500 hover:bg-red-400 px-4 py-2 rounded transition"
               >
                 Salir
-              </Link>
+              </button>
             </li>
           </>
         ) : (
-          <>
-            <li>
-              <Link
-                to="/login"
-                className="px-3 py-2 rounded-sm block md:inline-block text-sm md:text-base font-bold text-white hover:bg-surface"
-              >
-                Login
-              </Link>
-            </li>
-          </>
+          <li>
+            <Link
+              to="/login"
+              onClick={closeAll}
+              className="text-white font-bold hover:bg-surface px-4 py-2 rounded transition"
+            >
+              Login
+            </Link>
+          </li>
         )}
       </ul>
     </nav>
