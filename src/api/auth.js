@@ -8,3 +8,7 @@ export const verifyTokenRequest = () => axios.get(`/v2/verify`);
 
 export const getProfileRequest = () => axios.get(`/v2/profile`);
 
+export const logoutRequest = () => axios.post(`/v2/logout`, {}, { withCredentials: true });
+
+
+

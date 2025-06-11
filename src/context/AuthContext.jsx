@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { createContext, useContext, useState } from "react";
-import { loginRequest, registerRequest, verifyTokenRequest } from "../api/auth";
+import { loginRequest, registerRequest, verifyTokenRequest, logoutRequest } from "../api/auth";
 import Cookies from "js-cookie";
+
 
 const AuthContext = createContext();
 
@@ -17,9 +18,6 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  console.log(user);
-
 
   // clear errors after 5 seconds
   useEffect(() => {
@@ -53,11 +51,16 @@ export const AuthProvider = ({ children }) => {
       setErrors(error.response.data);
     }
   };
-  const logout = () => {
-    Cookies.remove("token");
+
+ const logout = async () => {
+  try {
+    await logoutRequest(); // llamada al backend para destruir la cookie
     setUser(null);
     setIsAuthenticated(false);
-  };
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
+};  
 
   useEffect(() => {
     const checkLogin = async () => {

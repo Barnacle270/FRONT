@@ -42,7 +42,7 @@ function Navbar() {
               {activeDropdown === 'boletas' && (
                 <ul className="absolute mt-2 w-40 bg-surface border border-gray-600 rounded-md shadow-lg animate-fade-in">
                   <li>
-                    <Link to="/boletas" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Ver Boletas</Link>
+                    <Link to="/boletas" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Mis Boletas</Link>
                   </li>
                   {user.role === "admin" && (
                     <li>
@@ -52,31 +52,6 @@ function Navbar() {
                 </ul>
               )}
             </li>
-
-            {/* Transporte */}
-            {user.role === "admin" && (
-              <li className="relative group">
-                <button
-                  onClick={() => toggleDropdown('transporte')}
-                  className="flex items-center gap-1 text-white font-semibold hover:bg-surface px-3 py-2 rounded transition"
-                >
-                  Transporte <ChevronDown className={`w-4 h-4 transform transition ${activeDropdown === 'transporte' ? 'rotate-180' : ''}`} />
-                </button>
-                {activeDropdown === 'transporte' && (
-                  <ul className="absolute mt-2 w-40 bg-surface border border-gray-600 rounded-md shadow-lg animate-fade-in">
-                    <li>
-                      <Link to="/transporte" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Servicios</Link>
-                    </li>
-                    <li>
-                      <Link to="/add-transporte" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Agregar Servicio</Link>
-                    </li>
-                    <li>
-                      <Link to="/contenedores" onClick={closeAll} className="block px-4 py-2 text-text-secondary hover:bg-gray-700">Devoluciones</Link>
-                    </li>
-                  </ul>
-                )}
-              </li>
-            )}
 
             {/* Logout */}
             <li>

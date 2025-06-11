@@ -1,6 +1,7 @@
 import axios from "./axios";
 
-export const getBoletasRequest = () => axios.get(`/boletasdni`);
+export const getBoletasRequest = (page = 1, limit = 6) =>
+  axios.get(`/boletasdni?page=${page}&limit=${limit}`);
 
 export const createBoletasRequest = (boletas) =>
   axios.post(`/boletas`, boletas, {

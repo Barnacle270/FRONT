@@ -16,7 +16,7 @@ function HomePage() {
           ¡Bienvenido, {user.name}!
         </h1>
         <p className="text-text-secondary text-lg">
-          Nos alegra verte de nuevo en el sistema de Transporte J.
+          ¡Nos alegra verte de nuevo.!
         </p>
       </motion.div>
     </div>
