@@ -10,6 +10,9 @@ import { BoletaProvider } from "./context/BoletasContext"
 import BoletasPage from "./pages/BoletasPage"
 import RegisterPage from "./pages/RegisterPage"
 
+import ServicioPage from './pages/ServicioPage';
+import ServiciosHistorialPage from "./pages/ServiciosHistorialPage";
+import ServicioEditPage from "./pages/ServicioEditPage";
 
 function App() {
   return (
@@ -29,6 +32,10 @@ function App() {
 
                 <Route path="/add-boletas" element={<BoletasFormPage />} />
                 <Route path="/boletas" element={<BoletasPage />} />
+
+                <Route path="/servicios" element={<ServicioPage />} />
+                <Route path="/historial" element={<ServiciosHistorialPage />} />
+                <Route path="/servicios/editar/:id" element={<ServicioEditPage />} />
 
               </Route>
             </Routes>
