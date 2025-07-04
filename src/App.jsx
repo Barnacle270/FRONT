@@ -9,6 +9,8 @@ import Navbar from "./components/Navbar"
 import { BoletaProvider } from "./context/BoletasContext"
 import BoletasPage from "./pages/BoletasPage"
 import RegisterPage from "./pages/RegisterPage"
+
+
 function App() {
   return (
     <AuthProvider>
