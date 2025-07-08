@@ -4,6 +4,8 @@ import App from './App.jsx'
 import './index.css'
 import { ServicioProvider } from './context/ServicioContext.jsx';
 import { Toaster } from 'react-hot-toast';
+import './styles/ui.css';
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

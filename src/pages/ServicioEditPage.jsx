@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useServicios } from '../context/ServicioContext';
+import { useClientes } from '../context/ClienteContext';
 import toast from 'react-hot-toast';
 
 const ServicioEditPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { obtenerPorId, actualizarServicio, borrarServicio } = useServicios();
+  const { clientes, cargarClientes } = useClientes();
 
   const [form, setForm] = useState({});
 
   useEffect(() => {
     const cargarDatos = async () => {
+      await cargarClientes();
       const servicio = await obtenerPorId(id);
       if (servicio) {
         setForm({
@@ -40,7 +43,6 @@ const ServicioEditPage = () => {
     }
   };
 
-  const inputClass = 'w-full bg-input border border-gray-600 px-3 py-2 rounded text-text-primary';
   const readOnlyInput = (label, name) => (
     <div>
       <label className="block mb-1 text-text-secondary">{label}</label>
@@ -48,7 +50,7 @@ const ServicioEditPage = () => {
         type="text"
         value={form[name] || ''}
         readOnly
-        className={inputClass + ' opacity-70 cursor-not-allowed'}
+        className="input opacity-70 cursor-not-allowed"
       />
     </div>
   );
@@ -61,13 +63,13 @@ const ServicioEditPage = () => {
         name={name}
         value={form[name] || ''}
         onChange={handleChange}
-        className={inputClass}
+        className="input"
       />
     </div>
   );
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 rounded bg-surface text-text-primary shadow-lg">
+    <div className="max-w-3xl mx-auto mt-10 card">
       <h1 className="text-2xl font-bold mb-6">Editar Servicio</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -88,25 +90,44 @@ const ServicioEditPage = () => {
         <section>
           <h2 className="text-lg font-semibold mb-2">🧾 Cliente y participantes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {editableInput('Cliente (manual)', 'cliente')}
+            <div>
+              <label className="block mb-1 text-text-secondary">Cliente</label>
+              <select
+                name="cliente"
+                value={form.cliente || ''}
+                onChange={handleChange}
+                className="input"
+              >
+                <option value="">Selecciona un cliente</option>
+                {clientes.map((c) => (
+                  <option key={c._id} value={c.razonSocial}>
+                    {c.razonSocial} - {c.ruc}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="block mb-1 text-text-secondary">Remitente</label>
               <input
                 type="text"
                 value={form.remitente?.razonSocial || ''}
                 readOnly
-                className={inputClass + ' opacity-70 cursor-not-allowed'}
+                className="input opacity-70 cursor-not-allowed"
               />
             </div>
+
             <div>
               <label className="block mb-1 text-text-secondary">Destinatario</label>
               <input
                 type="text"
                 value={form.destinatario?.razonSocial || ''}
                 readOnly
-                className={inputClass + ' opacity-70 cursor-not-allowed'}
+                className="input opacity-70 cursor-not-allowed"
               />
             </div>
+
+            {editableInput('Observaciones', 'observaciones')}
           </div>
         </section>
 
@@ -140,10 +161,7 @@ const ServicioEditPage = () => {
           </div>
         </section>
 
-        <button
-          type="submit"
-          className="w-full mt-8 bg-button-primary text-white font-semibold py-2 rounded hover:bg-highlight"
-        >
+        <button type="submit" className="btn btn-primary w-full mt-6">
           Guardar Cambios
         </button>
 
@@ -160,7 +178,7 @@ const ServicioEditPage = () => {
               toast.error('Error al eliminar el servicio');
             }
           }}
-          className="w-full bg-button-danger text-white font-semibold py-2 rounded hover:bg-red-700 mt-4"
+          className="btn btn-danger w-full mt-3"
         >
           Eliminar Servicio
         </button>

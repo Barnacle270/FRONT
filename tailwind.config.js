@@ -7,13 +7,15 @@ export default {
         background: "#202020",
         surface: "#2E2E2E",
         navbar: "#3A3A3A",
-        "button-primary": "#6C757D",
-        "button-secondary": "#A5A5A5",
-        "button-danger": "#FF6F61",
-        highlight: "#2272FF",
-        focus: "#00BFA5",
         card: "#2E2E2E",
         input: "#1C1C1C",
+        // nuevos botones
+        "button-primary": "#3B82F6", // Azul moderno
+        "button-secondary": "#A5A5A5",
+        "button-danger": "#FF6F61",
+        "button-success": "#22C55E",
+        highlight: "#2272FF",
+        focus: "#00BFA5",
       },
       textColor: {
         "text-primary": "#FFFFFF",
@@ -27,6 +29,10 @@ export default {
           '0%': { opacity: 0, transform: 'scale(0.95)' },
           '100%': { opacity: 1, transform: 'scale(1)' },
         },
+      },
+
+      ringColor: {
+        focus: '#00BFA5', // este es tu color de foco personalizado
       },
     },
   },

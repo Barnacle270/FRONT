@@ -3,6 +3,7 @@ import {
   getServicios,
   getServiciosPendientes,
   importarServicioDesdeXML,
+  importarServiciosMasivos,
   actualizarServicioManual,
   marcarServicioComoDevuelto,
   getServiciosPorFecha,
@@ -18,7 +19,6 @@ export const ServicioProvider = ({ children }) => {
   const [pendientes, setPendientes] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Cargar todos los servicios
   const cargarServicios = async () => {
     setLoading(true);
     try {
@@ -31,7 +31,6 @@ export const ServicioProvider = ({ children }) => {
     }
   };
 
-  // Cargar solo servicios pendientes
   const cargarPendientes = async () => {
     try {
       const data = await getServiciosPendientes();
@@ -41,7 +40,6 @@ export const ServicioProvider = ({ children }) => {
     }
   };
 
-  // Obtener servicios por fecha (nueva función)
   const obtenerPorFecha = async (fecha) => {
     try {
       const data = await getServiciosPorFecha(fecha);
@@ -52,21 +50,24 @@ export const ServicioProvider = ({ children }) => {
     }
   };
 
-  // Importar XML
   const importarXML = async (formData) => {
     await importarServicioDesdeXML(formData);
     await cargarServicios();
     await cargarPendientes();
   };
 
-  // Actualizar campos manuales
+  const importarXMLMasivo = async (formData) => {
+    await importarServiciosMasivos(formData);
+    await cargarServicios();
+    await cargarPendientes();
+  };
+
   const actualizarManual = async (id, data) => {
     await actualizarServicioManual(id, data);
     await cargarServicios();
     await cargarPendientes();
   };
 
-  // Marcar como devuelto
   const marcarDevuelto = async (id, body = {}) => {
     await marcarServicioComoDevuelto(id, body);
     await cargarServicios();
@@ -118,12 +119,13 @@ export const ServicioProvider = ({ children }) => {
         cargarServicios,
         cargarPendientes,
         importarXML,
+        importarXMLMasivo, // ✅ CORRECTAMENTE EXPUESTO
         actualizarManual,
         marcarDevuelto,
         obtenerPorFecha,
-        obtenerPorId,        
-        actualizarServicio,  
-        borrarServicio      
+        obtenerPorId,
+        actualizarServicio,
+        borrarServicio
       }}
     >
       {children}

@@ -28,15 +28,15 @@ const ServiciosHistorialPage = () => {
 
   return (
     <div className="p-6 text-text-primary bg-background min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Historial de Servicios</h1>
+      <h1 className="text-2xl font-bold mb-6">Historial de Servicios</h1>
 
-      <div className="mb-4">
-        <label className="block mb-1 text-text-secondary">Seleccionar fecha</label>
+      <div className="mb-6">
+        <label className="block mb-1 text-text-secondary text-sm">Seleccionar fecha</label>
         <input
           type="date"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          className="bg-input text-text-primary border border-gray-600 px-3 py-2 rounded"
+          className="input"
         />
       </div>
 
@@ -47,37 +47,34 @@ const ServiciosHistorialPage = () => {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
-            <thead className="bg-surface text-text-secondary uppercase">
+            <thead className="table-head">
               <tr>
-                <th className="p-2 border-b text-center">FECHA TRASLADO</th>
-                <th className="p-2 border-b text-center">CLIENTE</th>
-                <th className="p-2 border-b text-center">TIPO DE CARGA</th>
-                <th className="p-2 border-b text-center">GUÍA TRANSPORTE</th>
-                <th className="p-2 border-b text-center">GUÍA REMITENTE</th>
-                <th className="p-2 border-b text-center">PLACA</th>
-                <th className="p-2 border-b text-center">CONDUCTOR</th>
-                <th className="p-2 border-b text-center">CONTENEDOR</th>
-                <th className="p-2 border-b text-center">ESTADO</th>
-                <th className="p-2 border-b text-center">ACCIONES</th>
+                <th className="p-2 border-b text-center">Fecha Traslado</th>
+                <th className="p-2 border-b text-center">Cliente</th>
+                <th className="p-2 border-b text-center">Tipo de Carga</th>
+                <th className="p-2 border-b text-center">Guía Transporte</th>
+                <th className="p-2 border-b text-center">Guía Remitente</th>
+                <th className="p-2 border-b text-center">Placa</th>
+                <th className="p-2 border-b text-center">Conductor</th>
+                <th className="p-2 border-b text-center">Contenedor</th>
+                <th className="p-2 border-b text-center">Estado</th>
+                <th className="p-2 border-b text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {servicios.map((s) => (
                 <tr key={s._id} className="hover:bg-surface transition">
-                  <td className="p-2 border-b text-center align-middle">{s.fechaTraslado?.slice(0, 10)}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.cliente}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.tipoCarga}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.numeroGuia}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.documentoRelacionado}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.placaVehiculoPrincipal}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.nombreConductor}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.numeroContenedor}</td>
-                  <td className="p-2 border-b text-center align-middle">{s.estado}</td>
-                  <td className="p-2 border-b text-center align-middle">
-                    <Link
-                      to={`/servicios/editar/${s._id}`}
-                      className="text-sm text-blue-500 hover:underline mr-2"
-                    >
+                  <td className="p-2 border-b text-center">{s.fechaTraslado?.slice(0, 10)}</td>
+                  <td className="p-2 border-b text-center">{s.cliente}</td>
+                  <td className="p-2 border-b text-center">{s.tipoCarga}</td>
+                  <td className="p-2 border-b text-center">{s.numeroGuia}</td>
+                  <td className="p-2 border-b text-center">{s.documentoRelacionado}</td>
+                  <td className="p-2 border-b text-center">{s.placaVehiculoPrincipal}</td>
+                  <td className="p-2 border-b text-center">{s.nombreConductor}</td>
+                  <td className="p-2 border-b text-center">{s.numeroContenedor}</td>
+                  <td className="p-2 border-b text-center">{s.estado}</td>
+                  <td className="p-2 border-b text-center flex flex-col gap-2">
+                    <Link to={`/servicios/editar/${s._id}`} className="btn btn-primary text-xs">
                       Editar
                     </Link>
                     <button
@@ -92,7 +89,7 @@ const ServiciosHistorialPage = () => {
                           toast.error('Error al eliminar el servicio');
                         }
                       }}
-                      className="text-sm text-red-500 hover:underline"
+                      className="btn btn-danger text-xs"
                     >
                       Eliminar
                     </button>

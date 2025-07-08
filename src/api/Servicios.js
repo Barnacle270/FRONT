@@ -57,3 +57,13 @@ export const eliminarServicio = async (id) => {
   const res = await axios.delete(`servicios/${id}`);
   return res.data;
 };
+
+// Importar múltiples servicios desde archivos XML
+export const importarServiciosMasivos = async (formData) => {
+  const res = await axios.post('servicios/importar-masivo', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return res.data;
+};

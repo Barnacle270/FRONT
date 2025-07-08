@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useServicios } from '../context/ServicioContext';
+import { useClientes } from '../context/ClienteContext';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 const ServicioPage = () => {
   const { importarXML } = useServicios();
+  const { clientes } = useClientes();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -36,7 +38,7 @@ const ServicioPage = () => {
     try {
       await importarXML(data);
       toast.success('Servicio importado correctamente');
-      navigate('/historial'); // ✅ Redirección al historial
+      navigate('/historial');
     } catch (error) {
       toast.error('Error al importar el servicio');
       console.error(error);
@@ -45,29 +47,37 @@ const ServicioPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-text-primary flex items-center justify-center p-6">
-      <div className="w-full max-w-xl p-6 bg-surface rounded shadow-lg animate-fade-in">
+      <div className="w-full max-w-xl card">
         <h1 className="text-2xl font-bold mb-6">Importar Servicio desde XML</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Selector de cliente */}
           <div>
             <label className="block mb-1 text-text-secondary">Cliente</label>
-            <input
-              type="text"
+            <select
               name="cliente"
               value={formData.cliente}
               onChange={handleChange}
-              className="w-full bg-input border border-gray-600 text-text-primary px-3 py-2 rounded outline-none focus:ring-2 focus:ring-focus"
+              className="input"
               required
-            />
+            >
+              <option value="">Seleccione un cliente</option>
+              {clientes.map((c) => (
+                <option key={c._id} value={c.razonSocial}>
+                  {c.razonSocial} ({c.ruc})
+                </option>
+              ))}
+            </select>
           </div>
 
+          {/* Selector de tipo de carga */}
           <div>
             <label className="block mb-1 text-text-secondary">Tipo de Carga</label>
             <select
               name="tipoCarga"
               value={formData.tipoCarga}
               onChange={handleChange}
-              className="w-full bg-input border border-gray-600 text-text-primary px-3 py-2 rounded outline-none focus:ring-2 focus:ring-focus"
+              className="input"
               required
             >
               <option value="">Seleccione una opción</option>
@@ -78,21 +88,19 @@ const ServicioPage = () => {
             </select>
           </div>
 
+          {/* Archivo XML */}
           <div>
             <label className="block mb-1 text-text-secondary">Archivo XML</label>
             <input
               type="file"
               accept=".xml"
               onChange={handleFileChange}
-              className="w-full text-text-primary bg-input border border-gray-600 px-3 py-2 rounded"
+              className="input"
               required
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-button-primary text-white font-semibold py-2 rounded hover:bg-highlight transition"
-          >
+          <button type="submit" className="btn btn-primary w-full">
             Importar Servicio
           </button>
         </form>
