@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useServicios } from '../context/ServicioContext';
 import { useClientes } from '../context/ClienteContext';
+import { useConductores } from '../context/ConductorContext';
 import toast from 'react-hot-toast';
 
 const ServicioEditPage = () => {
@@ -9,12 +10,16 @@ const ServicioEditPage = () => {
   const navigate = useNavigate();
   const { obtenerPorId, actualizarServicio, borrarServicio } = useServicios();
   const { clientes, cargarClientes } = useClientes();
+  const { conductores, cargarConductores } = useConductores();
 
   const [form, setForm] = useState({});
+  const [editarCliente, setEditarCliente] = useState(false);
+  const [editarConductor, setEditarConductor] = useState(false);
 
   useEffect(() => {
     const cargarDatos = async () => {
       await cargarClientes();
+      await cargarConductores();
       const servicio = await obtenerPorId(id);
       if (servicio) {
         setForm({
@@ -90,21 +95,40 @@ const ServicioEditPage = () => {
         <section>
           <h2 className="text-lg font-semibold mb-2">🧾 Cliente y participantes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
             <div>
               <label className="block mb-1 text-text-secondary">Cliente</label>
-              <select
-                name="cliente"
-                value={form.cliente || ''}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Selecciona un cliente</option>
-                {clientes.map((c) => (
-                  <option key={c._id} value={c.razonSocial}>
-                    {c.razonSocial} - {c.ruc}
-                  </option>
-                ))}
-              </select>
+              {editarCliente ? (
+                <select
+                  name="cliente"
+                  value={form.cliente || ''}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="">Selecciona un cliente</option>
+                  {clientes.map((c) => (
+                    <option key={c._id} value={c.razonSocial}>
+                      {c.razonSocial} - {c.ruc}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={form.cliente || ''}
+                    readOnly
+                    className="input opacity-70 cursor-not-allowed"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setEditarCliente(true)}
+                    className="mt-2 text-sm text-blue-600 hover:underline"
+                  >
+                    Cambiar cliente
+                  </button>
+                </>
+              )}
             </div>
 
             <div>
@@ -157,7 +181,41 @@ const ServicioEditPage = () => {
             {editableInput('Vencimiento memo', 'vencimientoMemo', 'date')}
             {editableInput('Fecha de devolución', 'fechaDevolucion', 'date')}
             {editableInput('Placa que devuelve', 'placaDevolucion')}
-            {editableInput('Conductor que devuelve', 'conductorDevolucion')}
+
+            <div>
+              <label className="block mb-1 text-text-secondary">Conductor que devuelve</label>
+              {editarConductor ? (
+                <select
+                  name="conductorDevolucion"
+                  value={form.conductorDevolucion || ''}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="">Selecciona un conductor</option>
+                  {conductores.map((c) => (
+                    <option key={c._id} value={c.nombresCompletos}>
+                      {c.nombresCompletos}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={form.conductorDevolucion || ''}
+                    readOnly
+                    className="input opacity-70 cursor-not-allowed"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setEditarConductor(true)}
+                    className="mt-2 text-sm text-blue-600 hover:underline"
+                  >
+                    Cambiar conductor
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </section>
 

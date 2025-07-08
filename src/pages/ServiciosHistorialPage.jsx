@@ -73,26 +73,28 @@ const ServiciosHistorialPage = () => {
                   <td className="p-2 border-b text-center">{s.nombreConductor}</td>
                   <td className="p-2 border-b text-center">{s.numeroContenedor}</td>
                   <td className="p-2 border-b text-center">{s.estado}</td>
-                  <td className="p-2 border-b text-center flex flex-col gap-2">
-                    <Link to={`/servicios/editar/${s._id}`} className="btn btn-primary text-xs">
-                      Editar
-                    </Link>
-                    <button
-                      onClick={async () => {
-                        const confirmar = confirm('¿Eliminar este servicio? Esta acción no se puede deshacer.');
-                        if (!confirmar) return;
-                        try {
-                          await borrarServicio(s._id);
-                          await cargarServicios(fecha);
-                          toast.success('Servicio eliminado correctamente');
-                        } catch (error) {
-                          toast.error('Error al eliminar el servicio');
-                        }
-                      }}
-                      className="btn btn-danger text-xs"
-                    >
-                      Eliminar
-                    </button>
+                  <td className="p-2 border-b text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Link to={`/servicios/editar/${s._id}`} className="btn btn-primary text-xs">
+                        Editar
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          const confirmar = confirm('¿Eliminar este servicio? Esta acción no se puede deshacer.');
+                          if (!confirmar) return;
+                          try {
+                            await borrarServicio(s._id);
+                            await cargarServicios(fecha);
+                            toast.success('Servicio eliminado correctamente');
+                          } catch (error) {
+                            toast.error('Error al eliminar el servicio');
+                          }
+                        }}
+                        className="btn btn-danger text-xs"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

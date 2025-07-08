@@ -23,6 +23,9 @@ import ServicioMasivoPage from "./pages/ServicioMasivoPage";
 import ClientesPage from "./pages/ClientesPage";
 import { ClienteProvider } from "./context/ClienteContext";
 import ClienteForm from "./pages/ClienteForm";
+import ConductoresPage from "./pages/ConductoresPage";
+import ConductorForm from "./pages/ConductorForm";
+import { ConductorProvider } from "./context/ConductorContext";
 
 
 
@@ -31,47 +34,52 @@ function App() {
   return (
     <AuthProvider>
       <ClienteProvider>
-        <DashboardProvider>
-          <ReportesProvider>
-            <BoletaProvider>
-              <Router>
-                <main className="container mx-auto px-2">
-                  <Navbar />
-                  <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+        <ConductorProvider>
+          <DashboardProvider>
+            <ReportesProvider>
+              <BoletaProvider>
+                <Router>
+                  <main className="container mx-auto px-2">
+                    <Navbar />
+                    <Routes>
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/register" element={<RegisterPage />} />
 
 
-                    <Route element={<ProtectedRoute />}>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/profile" element={<ProfileTask />} />
+                      <Route element={<ProtectedRoute />}>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/profile" element={<ProfileTask />} />
 
-                      <Route path="/add-boletas" element={<BoletasFormPage />} />
-                      <Route path="/boletas" element={<BoletasPage />} />
+                        <Route path="/add-boletas" element={<BoletasFormPage />} />
+                        <Route path="/boletas" element={<BoletasPage />} />
 
-                      <Route path="/servicios" element={<ServicioPage />} />
-                      <Route path="/historial" element={<ServiciosHistorialPage />} />
-                      <Route path="/servicios/editar/:id" element={<ServicioEditPage />} />
+                        <Route path="/servicios" element={<ServicioPage />} />
+                        <Route path="/historial" element={<ServiciosHistorialPage />} />
+                        <Route path="/servicios/editar/:id" element={<ServicioEditPage />} />
 
-                      <Route path="/devoluciones" element={<DevolucionesPage />} />
-                      <Route path="/reportes" element={<ReportesPage />} />
+                        <Route path="/devoluciones" element={<DevolucionesPage />} />
+                        <Route path="/reportes" element={<ReportesPage />} />
 
-                      <Route path="/admin/usuarios" element={<GestionUsuarios />} />
+                        <Route path="/admin/usuarios" element={<GestionUsuarios />} />
 
-                      <Route path="/importacion-masiva" element={<ServicioMasivoPage />} />
+                        <Route path="/importacion-masiva" element={<ServicioMasivoPage />} />
 
 
-                      <Route path="/clientes" element={<ClientesPage />} />
-                      <Route path="/clientes/nuevo" element={<ClienteForm />} />
-                      <Route path="/clientes/editar/:id" element={<ClienteForm />} />
+                        <Route path="/clientes" element={<ClientesPage />} />
+                        <Route path="/clientes/nuevo" element={<ClienteForm />} />
+                        <Route path="/clientes/editar/:id" element={<ClienteForm />} />
 
-                    </Route>
-                  </Routes>
-                </main>
-              </Router>
-            </BoletaProvider>
-          </ReportesProvider>
-        </DashboardProvider>
+                        <Route path="/conductores" element={<ConductoresPage />} />
+                        <Route path="/crear-conductor" element={<ConductorForm />} />
+
+                      </Route>
+                    </Routes>
+                  </main>
+                </Router>
+              </BoletaProvider>
+            </ReportesProvider>
+          </DashboardProvider>
+        </ConductorProvider>
       </ClienteProvider>
     </AuthProvider>
   );

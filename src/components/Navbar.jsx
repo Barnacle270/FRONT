@@ -88,14 +88,14 @@ function Navbar() {
               dropdownItem("/reportes", "Reporte de Servicios", "reportes-servicios"),
             ])}
 
+            {dropdownMenu("datos", "Datos", [
+              dropdownItem("/clientes", "📁 Clientes", "datos-clientes"),
+              dropdownItem("/conductores", "🚛 Conductores", "datos-conductores"),
+            ])}
+
             {dropdownMenu("boletas", "Boletas", [
               dropdownItem("/boletas", "Mis Boletas", "boletas-mias"),
               user?.role === "admin" && dropdownItem("/add-boletas", "Agregar Boleta", "boletas-agregar"),
-            ])}
-
-            {dropdownMenu("datos", "Datos", [
-              dropdownItem("/clientes", "📁 Clientes", "datos-clientes"),
-              dropdownItem("/conductores", "🚛 Conductores", "datos-conductores"), // futura ruta
             ])}
 
             <li className="mt-2 md:mt-0" key="logout">
