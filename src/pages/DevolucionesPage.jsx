@@ -6,8 +6,10 @@ import { Link } from 'react-router-dom';
 const DevolucionesPage = () => {
   const { pendientes, cargarPendientes, marcarDevuelto } = useServicios();
 
+
   useEffect(() => {
     cargarPendientes();
+    
   }, []);
 
   const handleMarcarDevuelto = async (id) => {
@@ -32,6 +34,7 @@ const DevolucionesPage = () => {
     return diff >= 0 ? `${diff} día(s)` : `VENCIDO`;
   };
 
+
   return (
     <div className="p-6 text-text-primary bg-background min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Devoluciones Pendientes</h1>
@@ -51,6 +54,7 @@ const DevolucionesPage = () => {
                 <th className="p-2 border-b text-center">Placa D.</th>
                 <th className="p-2 border-b text-center">Conductor D.</th>
                 <th className="p-2 border-b text-center">Fecha Devolución</th>
+                <th className="p-2 border-b text-center">Hora cita</th>
                 <th className="p-2 border-b text-center">Acciones</th>
               </tr>
             </thead>
@@ -61,6 +65,7 @@ const DevolucionesPage = () => {
 
                 return (
                   <tr key={s._id} className="hover:bg-surface transition">
+                    
                     <td className="p-2 border-b text-center">{s.cliente}</td>
                     <td className="p-2 border-b text-center">{s.numeroContenedor}</td>
                     <td className="p-2 border-b text-center">{s.terminalDevolucion || '—'}</td>
@@ -71,6 +76,7 @@ const DevolucionesPage = () => {
                     <td className="p-2 border-b text-center">{s.placaDevolucion || '—'}</td>
                     <td className="p-2 border-b text-center">{s.conductorDevolucion || '—'}</td>
                     <td className="p-2 border-b text-center">{s.fechaDevolucion?.slice(0, 10) || '—'}</td>
+                    <td className="p-2 border-b text-center">{s.horaCita}</td>
                     <td className="p-2 border-b text-center flex flex-col gap-2">
                       <Link
                         to={`/servicios/editar/${s._id}`}

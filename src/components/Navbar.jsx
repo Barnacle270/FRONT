@@ -44,9 +44,8 @@ function Navbar() {
         >
           {label}
           <ChevronDown
-            className={`w-4 h-4 transform transition ${
-              activeDropdown === id ? "rotate-180" : ""
-            }`}
+            className={`w-4 h-4 transform transition ${activeDropdown === id ? "rotate-180" : ""
+              }`}
           />
         </button>
         {activeDropdown === id && (
@@ -62,7 +61,7 @@ function Navbar() {
     <nav className="bg-navbar sticky top-0 z-50 shadow-md my-3 py-4 px-6 rounded-lg md:flex md:justify-between md:items-center">
       <div className="flex items-center justify-between">
         <Link to="/" onClick={closeAll}>
-          <h1 className="text-2xl font-bold text-white tracking-tight">TRANSPORTE J</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">TRANSPORTES J</h1>
         </Link>
         <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -74,8 +73,9 @@ function Navbar() {
           <>
             {dropdownMenu("servicios", "Servicios", [
               dropdownItem("/servicios", "Importar XML", "servicios-importar"),
-              dropdownItem("/importacion-masiva", "Importación Masiva", "servicios-masivo"),
+              //dropdownItem("/importacion-masiva", "Importación Masiva", "servicios-masivo"),
               dropdownItem("/historial", "Historial de Servicios", "servicios-historial"),
+              dropdownItem("/recepcion-facturas", "Recepcion Guias"),
             ])}
 
             {dropdownMenu("devoluciones", "Devoluciones", [

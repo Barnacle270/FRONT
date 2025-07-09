@@ -67,3 +67,24 @@ export const importarServiciosMasivos = async (formData) => {
   });
   return res.data;
 };
+
+// Obtener servicios con estadoFacturacion vacío
+export const getServiciosSinFacturar = async () => {
+  const res = await axios.get('servicios/sin-factura');
+  return res.data;
+};
+
+// Actualizar estado de facturación de un servicio individual
+export const actualizarEstadoFacturacion = async (id, data) => {
+  const res = await axios.put(`servicios/${id}/facturacion`, data);
+  return res.data;
+};
+
+// Recepcionar lote de servicios
+export const recepcionarServiciosLote = async ({ ids, fechaRecepcion }) => {
+  const res = await axios.put(`servicios/facturacion/lote`, {
+    ids,
+    fechaRecepcion
+  });
+  return res.data;
+};

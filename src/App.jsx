@@ -26,6 +26,7 @@ import ClienteForm from "./pages/ClienteForm";
 import ConductoresPage from "./pages/ConductoresPage";
 import ConductorForm from "./pages/ConductorForm";
 import { ConductorProvider } from "./context/ConductorContext";
+import RecepcionFacturasPage from "./pages/RecepcionFacturasPage";
 
 
 
@@ -71,6 +72,8 @@ function App() {
 
                         <Route path="/conductores" element={<ConductoresPage />} />
                         <Route path="/crear-conductor" element={<ConductorForm />} />
+
+                        <Route path="/recepcion-facturas" element={<RecepcionFacturasPage />} />
 
                       </Route>
                     </Routes>

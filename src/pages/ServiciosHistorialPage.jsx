@@ -14,7 +14,15 @@ const ServiciosHistorialPage = () => {
     setLoading(true);
     try {
       const data = await obtenerPorFecha(f);
-      setServicios(data);
+
+      // Ordenar por número de guía de manera ascendente
+      const dataOrdenada = [...data].sort((a, b) => {
+        const guiaA = a.numeroGuia?.toUpperCase() || '';
+        const guiaB = b.numeroGuia?.toUpperCase() || '';
+        return guiaA.localeCompare(guiaB, 'es', { numeric: true });
+      });
+
+      setServicios(dataOrdenada);
     } catch (error) {
       console.error('Error al cargar servicios por fecha:', error);
     } finally {

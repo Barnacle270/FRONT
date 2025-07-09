@@ -180,6 +180,7 @@ const ServicioEditPage = () => {
             {editableInput('Terminal devolución', 'terminalDevolucion')}
             {editableInput('Vencimiento memo', 'vencimientoMemo', 'date')}
             {editableInput('Fecha de devolución', 'fechaDevolucion', 'date')}
+            {editableInput('Hora de cita', 'horaCita', 'time')}
             {editableInput('Placa que devuelve', 'placaDevolucion')}
 
             <div>
@@ -193,8 +194,8 @@ const ServicioEditPage = () => {
                 >
                   <option value="">Selecciona un conductor</option>
                   {conductores.map((c) => (
-                    <option key={c._id} value={c.nombresCompletos}>
-                      {c.nombresCompletos}
+                    <option key={c._id} value={c.nombres}>
+                      {c.nombres}
                     </option>
                   ))}
                 </select>
