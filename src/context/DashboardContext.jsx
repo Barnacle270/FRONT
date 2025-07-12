@@ -11,6 +11,7 @@ export const DashboardProvider = ({ children }) => {
     try {
       const data = await getEstadisticas();
       setStats(data);
+      console.log(data)
     } catch (error) {
       console.error('Error al cargar estadísticas del dashboard:', error);
     } finally {

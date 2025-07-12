@@ -25,7 +25,7 @@ function HomePage() {
       {loading ? (
         <p className="text-white">Cargando estadísticas...</p>
       ) : stats ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-5xl mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 w-full max-w-6xl mt-4">
           <div className="card text-center">
             <h2 className="font-semibold text-white">Total Servicios</h2>
             <p className="text-2xl text-white">{stats.total}</p>
@@ -37,6 +37,14 @@ function HomePage() {
           <div className="card text-center">
             <h2 className="font-semibold text-white">Concluidos</h2>
             <p className="text-2xl text-green-400">{stats.concluidos}</p>
+          </div>
+          <div className="card text-center">
+            <h2 className="font-semibold text-white">Facturados</h2>
+            <p className="text-2xl text-purple-400">{stats.facturados}</p>
+          </div>
+          <div className="card text-center">
+            <h2 className="font-semibold text-white">Pend. Facturar</h2>
+            <p className="text-2xl text-orange-400">{stats.pendientesFacturar}</p>
           </div>
           <div className="card text-center">
             <h2 className="font-semibold text-white">Últimos 7 días</h2>
