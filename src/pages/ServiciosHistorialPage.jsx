@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useServicios } from '../context/ServicioContext';
-import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import ServicioEditModal from '../components/ServicioEditModal.jsx'; // ✅ importar el modal
 
 const ServiciosHistorialPage = () => {
   const { obtenerPorFecha, borrarServicio } = useServicios();
@@ -10,12 +10,15 @@ const ServiciosHistorialPage = () => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Modal
+  const [showModal, setShowModal] = useState(false);
+  const [servicioIdSeleccionado, setServicioIdSeleccionado] = useState(null);
+
   const cargarServicios = async (f) => {
     setLoading(true);
     try {
       const data = await obtenerPorFecha(f);
 
-      // Ordenar por número de guía de manera ascendente
       const dataOrdenada = [...data].sort((a, b) => {
         const guiaA = a.numeroGuia?.toUpperCase() || '';
         const guiaB = b.numeroGuia?.toUpperCase() || '';
@@ -83,9 +86,16 @@ const ServiciosHistorialPage = () => {
                   <td className="p-2 border-b text-center">{s.estado}</td>
                   <td className="p-2 border-b text-center">
                     <div className="flex flex-col items-center gap-2">
-                      <Link to={`/servicios/editar/${s._id}`} className="btn btn-primary text-xs">
+                      <button
+                        onClick={() => {
+                          setServicioIdSeleccionado(s._id);
+                          setShowModal(true);
+                          console.log("Abriendo modal para:", s._id);
+                        }}
+                        className="btn btn-primary text-xs"
+                      >
                         Editar
-                      </Link>
+                      </button>
                       <button
                         onClick={async () => {
                           const confirmar = confirm('¿Eliminar este servicio? Esta acción no se puede deshacer.');
@@ -109,6 +119,18 @@ const ServiciosHistorialPage = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Modal de edición */}
+      {showModal && servicioIdSeleccionado && (
+        <ServicioEditModal
+          id={servicioIdSeleccionado}
+          onClose={() => {
+            setShowModal(false);
+            setServicioIdSeleccionado(null);
+            cargarServicios(fecha); // recargar lista
+          }}
+        />
       )}
     </div>
   );
