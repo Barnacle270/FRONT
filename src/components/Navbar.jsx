@@ -17,7 +17,7 @@ function Navbar() {
   const { isAuthenticated, logout, user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const navRef = useRef(); // Referencia al contenedor del navbar
+  const navRef = useRef();
 
   const toggleDropdown = (menu) => {
     setActiveDropdown((prev) => (prev === menu ? null : menu));
@@ -28,14 +28,12 @@ function Navbar() {
     setActiveDropdown(null);
   };
 
-  // Detecta clic fuera del navbar y lo cierra
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navRef.current && !navRef.current.contains(event.target)) {
         closeAll();
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -55,31 +53,40 @@ function Navbar() {
     </li>
   );
 
-  const dropdownMenu = (id, label, items, icon) => {
-    return (
-      <li className="relative group" key={id}>
-        <button
-          onClick={() => toggleDropdown(id)}
-          className={`flex items-center gap-2 font-semibold px-3 py-2 rounded transition
-            ${id === "reportes"
-              ? "text-blue-400 hover:bg-blue-700"
-              : "text-text-primary hover:bg-surface"
-            }
-          `}
-        >
-          {icon}
-          {label}
-          <ChevronDown
-            className={`w-4 h-4 transform transition ${activeDropdown === id ? "rotate-180" : ""}`}
-          />
-        </button>
-        {activeDropdown === id && (
-          <ul className="absolute mt-2 w-52 bg-surface border border-gray-700 rounded-md shadow-lg animate-fade-in z-50">
-            {items.filter(Boolean)}
-          </ul>
-        )}
-      </li>
-    );
+  const dropdownMenu = (id, label, items, icon) => (
+    <li className="relative group" key={id}>
+      <button
+        onClick={() => toggleDropdown(id)}
+        className={`flex items-center gap-2 font-semibold px-3 py-2 rounded transition
+          ${id === "reportes"
+            ? "text-blue-400 hover:bg-blue-700"
+            : "text-text-primary hover:bg-surface"
+          }
+        `}
+      >
+        {icon}
+        {label}
+        <ChevronDown
+          className={`w-4 h-4 transform transition ${activeDropdown === id ? "rotate-180" : ""}`}
+        />
+      </button>
+      {activeDropdown === id && (
+        <ul className="absolute mt-2 w-52 bg-surface border border-gray-700 rounded-md shadow-lg animate-fade-in z-50">
+          {items.filter(Boolean)}
+        </ul>
+      )}
+    </li>
+  );
+
+  const role = user?.role;
+
+  const canView = {
+    servicios: ["Superadministrador", "Administrador", "Coordinador"].includes(role),
+    devoluciones: ["Superadministrador", "Administrador", "Coordinador"].includes(role),
+    reportes: ["Superadministrador", "Administrador", "Coordinador"].includes(role),
+    boletas: ["Superadministrador", "Administrador", "Coordinador", "User"].includes(role),
+    datos: ["Superadministrador", "Administrador"].includes(role),
+    admin: role === "Superadministrador",
   };
 
   return (
@@ -101,30 +108,41 @@ function Navbar() {
       <ul className={`${menuOpen ? "block mt-4" : "hidden"} md:flex md:items-center md:gap-x-6`}>
         {isAuthenticated ? (
           <>
-            {dropdownMenu("servicios", "Servicios", [
-              dropdownItem("/servicios", "Importar XML", "servicios-importar", <FaFileAlt />),
-              dropdownItem("/historial", "Historial de Servicios", "servicios-historial", <FaFileAlt />),
-              dropdownItem("/recepcion-facturas", "Recepción Guías", "recepcion", <FaFileAlt />),
-            ], <FaFileAlt />)}
+            {canView.servicios &&
+              dropdownMenu("servicios", "Servicios", [
+                dropdownItem("/servicios", "Importar XML", "servicios-importar", <FaFileAlt />),
+                dropdownItem("/historial", "Historial de Servicios", "servicios-historial", <FaFileAlt />),
+                dropdownItem("/recepcion-facturas", "Recepción Guías", "recepcion", <FaFileAlt />),
+              ], <FaFileAlt />)}
 
-            {dropdownMenu("devoluciones", "Devoluciones", [
-              dropdownItem("/devoluciones", "Ver pendientes", "devoluciones-pendientes", <FaTruck />),
-            ], <FaTruck />)}
+            {canView.devoluciones &&
+              dropdownMenu("devoluciones", "Devoluciones", [
+                dropdownItem("/devoluciones", "Ver pendientes", "devoluciones-pendientes", <FaTruck />),
+              ], <FaTruck />)}
 
-            {dropdownMenu("reportes", "Reportes", [
-              dropdownItem("/reportes", "Reporte de Servicios", "reportes-servicios", <FaChartBar />),
-            ], <FaChartBar className="text-blue-400" />)}
+            {canView.reportes &&
+              dropdownMenu("reportes", "Reportes", [
+                dropdownItem("/reportes", "Reporte de Servicios", "reportes-servicios", <FaChartBar />),
+              ], <FaChartBar className="text-blue-400" />)}
 
-            {dropdownMenu("datos", "Datos", [
-              dropdownItem("/clientes", "Clientes", "datos-clientes", <FaUsers />),
-              dropdownItem("/conductores", "Conductores", "datos-conductores", <FaUserTie />),
-            ], <FaUsers />)}
+            {canView.boletas &&
+              dropdownMenu("boletas", "Boletas", [
+                dropdownItem("/boletas", "Mis Boletas", "boletas-mias", <FaReceipt />),
+                (role === "superadministrador" || role === "administrador") &&
+                  dropdownItem("/add-boletas", "Agregar Boleta", "boletas-agregar", <FaReceipt />),
+              ], <FaReceipt />)}
 
-            {dropdownMenu("boletas", "Boletas", [
-              dropdownItem("/boletas", "Mis Boletas", "boletas-mias", <FaReceipt />),
-              user?.role === "admin" &&
-                dropdownItem("/add-boletas", "Agregar Boleta", "boletas-agregar", <FaReceipt />),
-            ], <FaReceipt />)}
+            {canView.datos &&
+              dropdownMenu("datos", "Datos", [
+                dropdownItem("/clientes", "Clientes", "datos-clientes", <FaUsers />),
+                dropdownItem("/conductores", "Conductores", "datos-conductores", <FaUserTie />),
+              ], <FaUsers />)}
+
+            {canView.admin &&
+              dropdownMenu("admin", "Admin", [
+                dropdownItem("/usuarios", "Gestionar Usuarios", "admin-usuarios", <FaUsers />),
+                dropdownItem("/configuracion", "Configuración", "admin-config", <FaChartBar />),
+              ], <FaUserTie />)}
 
             <li className="mt-2 md:mt-0" key="logout">
               <button

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useServicios } from '../context/ServicioContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const RecepcionFacturasPage = () => {
@@ -9,8 +10,11 @@ const RecepcionFacturasPage = () => {
     recepcionarLote
   } = useServicios();
 
+  const { user } = useAuth();
   const [seleccionados, setSeleccionados] = useState([]);
   const [fechaRecepcion, setFechaRecepcion] = useState('');
+
+  const esAdmin = ["superadministrador", "administrador"].includes(user?.role);
 
   useEffect(() => {
     cargarServiciosSinFacturar();
@@ -50,24 +54,29 @@ const RecepcionFacturasPage = () => {
     <div className="p-6 text-text-primary bg-background min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Recepción de Guías</h1>
 
-      <div className="mb-6">
-        <label className="block mb-1 text-text-secondary text-sm">Fecha de Recepción</label>
-        <input
-          type="date"
-          className="input"
-          value={fechaRecepcion}
-          onChange={(e) => setFechaRecepcion(e.target.value)}
-        />
-      </div>
+      {/* Solo visible para Admin y Superadmin */}
+      {esAdmin && (
+        <>
+          <div className="mb-6">
+            <label className="block mb-1 text-text-secondary text-sm">Fecha de Recepción</label>
+            <input
+              type="date"
+              className="input"
+              value={fechaRecepcion}
+              onChange={(e) => setFechaRecepcion(e.target.value)}
+            />
+          </div>
 
-      <div className="mb-6">
-        <button
-          className="btn btn-primary"
-          onClick={marcarRecepcion}
-        >
-          Recepcionar Guías Seleccionadas
-        </button>
-      </div>
+          <div className="mb-6">
+            <button
+              className="btn btn-primary"
+              onClick={marcarRecepcion}
+            >
+              Recepcionar Guías Seleccionadas
+            </button>
+          </div>
+        </>
+      )}
 
       {noFacturadosOrdenados.length === 0 ? (
         <p className="text-text-secondary">No hay servicios pendientes por recepcionar.</p>
@@ -76,7 +85,9 @@ const RecepcionFacturasPage = () => {
           <table className="w-full text-sm text-center border-collapse">
             <thead className="table-head">
               <tr>
-                <th className="p-3 border-b border-gray-700">Seleccionar</th>
+                {esAdmin && (
+                  <th className="p-3 border-b border-gray-700">Seleccionar</th>
+                )}
                 <th className="p-3 border-b border-gray-700">Guía</th>
                 <th className="p-3 border-b border-gray-700">Cliente</th>
                 <th className="p-3 border-b border-gray-700">Fecha Traslado</th>
@@ -84,19 +95,21 @@ const RecepcionFacturasPage = () => {
               </tr>
             </thead>
             <tbody>
-              {noFacturadosOrdenados.map((servicio, index) => (
+              {noFacturadosOrdenados.map((servicio) => (
                 <tr
                   key={servicio._id}
                   className="hover:bg-surface transition duration-150"
                 >
-                  <td className="p-3 border-b border-gray-700">
-                    <input
-                      type="checkbox"
-                      checked={seleccionados.includes(servicio._id)}
-                      onChange={() => toggleSeleccion(servicio._id)}
-                      className="scale-110 accent-white"
-                    />
-                  </td>
+                  {esAdmin && (
+                    <td className="p-3 border-b border-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={seleccionados.includes(servicio._id)}
+                        onChange={() => toggleSeleccion(servicio._id)}
+                        className="scale-110 accent-white"
+                      />
+                    </td>
+                  )}
                   <td className="p-3 border-b border-gray-700">{servicio.numeroGuia}</td>
                   <td className="p-3 border-b border-gray-700">{servicio.cliente}</td>
                   <td className="p-3 border-b border-gray-700">{servicio.fechaTraslado?.slice(0, 10)}</td>

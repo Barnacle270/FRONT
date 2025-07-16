@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useServicios } from '../context/ServicioContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import ServicioEditModal from '../components/ServicioEditModal.jsx'; // ✅ importar el modal
+import ServicioEditModal from '../components/ServicioEditModal.jsx';
 
 const ServiciosHistorialPage = () => {
-  const { obtenerPorFecha, borrarServicio } = useServicios();
+  const { obtenerPorFecha, borrarServicio, anular } = useServicios();
+  const { user } = useAuth();
 
   const [fecha, setFecha] = useState(() => new Date().toISOString().split('T')[0]);
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Modal
   const [showModal, setShowModal] = useState(false);
   const [servicioIdSeleccionado, setServicioIdSeleccionado] = useState(null);
 
@@ -18,13 +19,11 @@ const ServiciosHistorialPage = () => {
     setLoading(true);
     try {
       const data = await obtenerPorFecha(f);
-
       const dataOrdenada = [...data].sort((a, b) => {
         const guiaA = a.numeroGuia?.toUpperCase() || '';
         const guiaB = b.numeroGuia?.toUpperCase() || '';
         return guiaA.localeCompare(guiaB, 'es', { numeric: true });
       });
-
       setServicios(dataOrdenada);
     } catch (error) {
       console.error('Error al cargar servicios por fecha:', error);
@@ -36,6 +35,30 @@ const ServiciosHistorialPage = () => {
   useEffect(() => {
     cargarServicios(fecha);
   }, [fecha]);
+
+  const handleAnular = async (id) => {
+    const confirmar = confirm('¿Estás seguro de ANULAR este servicio?');
+    if (!confirmar) return;
+    try {
+      await anular(id);
+      await cargarServicios(fecha);
+      toast.success('Servicio anulado correctamente');
+    } catch (error) {
+      toast.error('Error al anular el servicio');
+    }
+  };
+
+  const handleEliminar = async (id) => {
+    const confirmar = confirm('¿Eliminar este servicio? Esta acción no se puede deshacer.');
+    if (!confirmar) return;
+    try {
+      await borrarServicio(id);
+      await cargarServicios(fecha);
+      toast.success('Servicio eliminado correctamente');
+    } catch (error) {
+      toast.error('Error al eliminar el servicio');
+    }
+  };
 
   return (
     <div className="p-6 text-text-primary bg-background min-h-screen">
@@ -85,33 +108,34 @@ const ServiciosHistorialPage = () => {
                   <td className="p-2 border-b text-center">{s.numeroContenedor}</td>
                   <td className="p-2 border-b text-center">{s.estado}</td>
                   <td className="p-2 border-b text-center">
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-1">
                       <button
                         onClick={() => {
                           setServicioIdSeleccionado(s._id);
                           setShowModal(true);
-                          console.log("Abriendo modal para:", s._id);
                         }}
                         className="btn btn-primary text-xs"
                       >
                         Editar
                       </button>
-                      <button
-                        onClick={async () => {
-                          const confirmar = confirm('¿Eliminar este servicio? Esta acción no se puede deshacer.');
-                          if (!confirmar) return;
-                          try {
-                            await borrarServicio(s._id);
-                            await cargarServicios(fecha);
-                            toast.success('Servicio eliminado correctamente');
-                          } catch (error) {
-                            toast.error('Error al eliminar el servicio');
-                          }
-                        }}
-                        className="btn btn-danger text-xs"
-                      >
-                        Eliminar
-                      </button>
+
+                      {(user?.role === 'Superadministrador' || user?.role === 'Administrador')  && (
+                        <button
+                          onClick={() => handleAnular(s._id)}
+                          className="btn btn-warning text-xs"
+                        >
+                          Anular
+                        </button>
+                      )}
+
+                      {user?.role === 'Superadministrador' && (
+                        <button
+                          onClick={() => handleEliminar(s._id)}
+                          className="btn btn-danger text-xs"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -128,7 +152,7 @@ const ServiciosHistorialPage = () => {
           onClose={() => {
             setShowModal(false);
             setServicioIdSeleccionado(null);
-            cargarServicios(fecha); // recargar lista
+            cargarServicios(fecha);
           }}
         />
       )}

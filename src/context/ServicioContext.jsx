@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import {
   getServicios,
   getServiciosPendientes,
-  getServiciosSinFacturar, // ✅ NUEVO
+  getServiciosSinFacturar,
   importarServicioDesdeXML,
   importarServiciosMasivos,
   actualizarServicioManual,
@@ -12,7 +12,8 @@ import {
   editarServicio,
   eliminarServicio,
   actualizarEstadoFacturacion,
-  recepcionarServiciosLote // ✅ NUEVO
+  recepcionarServiciosLote,
+  anularServicio // ✅ nueva función importada
 } from '../api/Servicios';
 
 const ServicioContext = createContext();
@@ -20,7 +21,7 @@ const ServicioContext = createContext();
 export const ServicioProvider = ({ children }) => {
   const [servicios, setServicios] = useState([]);
   const [pendientes, setPendientes] = useState([]);
-  const [noFacturados, setNoFacturados] = useState([]); // ✅ NUEVO
+  const [noFacturados, setNoFacturados] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const cargarServicios = async () => {
@@ -57,7 +58,7 @@ export const ServicioProvider = ({ children }) => {
     await importarServicioDesdeXML(formData);
     await cargarServicios();
     await cargarPendientes();
-    await cargarServiciosSinFacturar(); // ✅ También recargar lista sin facturar
+    await cargarServiciosSinFacturar();
   };
 
   const importarXMLMasivo = async (formData) => {
@@ -147,10 +148,21 @@ export const ServicioProvider = ({ children }) => {
     }
   };
 
+  // ✅ NUEVO: función para anular servicio
+  const anular = async (id) => {
+    try {
+      await anularServicio(id);
+      await cargarServicios();
+      await cargarPendientes();
+    } catch (error) {
+      console.error('Error al anular servicio:', error);
+    }
+  };
+
   useEffect(() => {
     cargarServicios();
     cargarPendientes();
-    cargarServiciosSinFacturar(); // ✅ Cargar también al iniciar
+    cargarServiciosSinFacturar();
   }, []);
 
   return (
@@ -158,7 +170,7 @@ export const ServicioProvider = ({ children }) => {
       value={{
         servicios,
         pendientes,
-        noFacturados, // ✅ NUEVO
+        noFacturados,
         loading,
         cargarServicios,
         cargarPendientes,
@@ -172,7 +184,8 @@ export const ServicioProvider = ({ children }) => {
         actualizarServicio,
         borrarServicio,
         actualizarFacturacion,
-        recepcionarLote // ✅ NUEVO
+        recepcionarLote,
+        anular // ✅ exportar función
       }}
     >
       {children}

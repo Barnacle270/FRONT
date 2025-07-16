@@ -88,3 +88,8 @@ export const recepcionarServiciosLote = async ({ ids, fechaRecepcion }) => {
   });
   return res.data;
 };
+
+export const anularServicio = async (id) => {
+  const res = await axios.put(`servicios/${id}/anular`);
+  return res.data;
+};
