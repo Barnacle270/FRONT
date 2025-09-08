@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import {
   getServicios,
   getServiciosPendientes,
@@ -13,7 +14,7 @@ import {
   eliminarServicio,
   actualizarEstadoFacturacion,
   recepcionarServiciosLote,
-  anularServicio // ✅ nueva función importada
+  anularServicio
 } from '../api/Servicios';
 
 const ServicioContext = createContext();
@@ -31,6 +32,7 @@ export const ServicioProvider = ({ children }) => {
       setServicios(data);
     } catch (error) {
       console.error('Error al cargar servicios:', error);
+      toast.error('Error al cargar servicios');
     } finally {
       setLoading(false);
     }
@@ -42,6 +44,7 @@ export const ServicioProvider = ({ children }) => {
       setPendientes(data);
     } catch (error) {
       console.error('Error al cargar pendientes:', error);
+      toast.error('Error al cargar servicios pendientes');
     }
   };
 
@@ -50,54 +53,79 @@ export const ServicioProvider = ({ children }) => {
       const data = await getServiciosSinFacturar();
       setNoFacturados(data);
     } catch (error) {
-      console.error('Error al cargar servicios sin facturar:', error);
+      console.error('Error al cargar sin facturar:', error);
+      toast.error('Error al cargar servicios sin facturar');
     }
   };
 
   const importarXML = async (formData) => {
-    await importarServicioDesdeXML(formData);
-    await cargarServicios();
-    await cargarPendientes();
-    await cargarServiciosSinFacturar();
+    try {
+      await importarServicioDesdeXML(formData);
+      toast.success('Servicio importado correctamente');
+      await cargarServicios();
+      await cargarPendientes();
+      await cargarServiciosSinFacturar();
+    } catch (error) {
+      console.error('Error al importar XML:', error);
+      toast.error('Error al importar servicio');
+    }
   };
 
   const importarXMLMasivo = async (formData) => {
-    await importarServiciosMasivos(formData);
-    await cargarServicios();
-    await cargarPendientes();
-    await cargarServiciosSinFacturar();
+    try {
+      await importarServiciosMasivos(formData);
+      toast.success('Importación masiva completada');
+      await cargarServicios();
+      await cargarPendientes();
+      await cargarServiciosSinFacturar();
+    } catch (error) {
+      console.error('Error al importar masivo:', error);
+      toast.error('Error en la importación masiva');
+    }
   };
 
   const actualizarManual = async (id, data) => {
-    await actualizarServicioManual(id, data);
-    await cargarServicios();
-    await cargarPendientes();
-    await cargarServiciosSinFacturar();
+    try {
+      await actualizarServicioManual(id, data);
+      toast.success('Servicio actualizado');
+      await cargarServicios();
+      await cargarPendientes();
+      await cargarServiciosSinFacturar();
+    } catch (error) {
+      console.error('Error al actualizar manual:', error);
+      toast.error('Error al actualizar servicio');
+    }
   };
 
   const marcarDevuelto = async (id, body = {}) => {
-    await marcarServicioComoDevuelto(id, body);
-    await cargarServicios();
-    await cargarPendientes();
-    await cargarServiciosSinFacturar();
+    try {
+      await marcarServicioComoDevuelto(id, body);
+      toast.success('Servicio marcado como devuelto');
+      await cargarServicios();
+      await cargarPendientes();
+      await cargarServiciosSinFacturar();
+    } catch (error) {
+      console.error('Error al marcar devuelto:', error);
+      toast.error('Error al marcar como devuelto');
+    }
   };
 
   const obtenerPorFecha = async (fecha) => {
     try {
-      const data = await getServiciosPorFecha(fecha);
-      return data;
+      return await getServiciosPorFecha(fecha);
     } catch (error) {
-      console.error('Error al obtener servicios por fecha:', error);
+      console.error('Error al obtener por fecha:', error);
+      toast.error('Error al buscar servicios');
       return [];
     }
   };
 
   const obtenerPorId = async (id) => {
     try {
-      const servicio = await getServicioPorId(id);
-      return servicio;
+      return await getServicioPorId(id);
     } catch (error) {
-      console.error('Error al obtener servicio por ID:', error);
+      console.error('Error al obtener por ID:', error);
+      toast.error('Error al buscar servicio');
       return null;
     }
   };
@@ -105,12 +133,14 @@ export const ServicioProvider = ({ children }) => {
   const actualizarServicio = async (id, data) => {
     try {
       const actualizado = await editarServicio(id, data);
+      toast.success('Cambios guardados');
       await cargarServicios();
       await cargarPendientes();
       await cargarServiciosSinFacturar();
       return actualizado;
     } catch (error) {
       console.error('Error al editar servicio:', error);
+      toast.error('Error al guardar cambios');
       throw error;
     }
   };
@@ -118,22 +148,26 @@ export const ServicioProvider = ({ children }) => {
   const borrarServicio = async (id) => {
     try {
       await eliminarServicio(id);
+      toast.success('Servicio eliminado');
       await cargarServicios();
       await cargarPendientes();
       await cargarServiciosSinFacturar();
     } catch (error) {
       console.error('Error al eliminar servicio:', error);
+      toast.error('Error al eliminar servicio');
     }
   };
 
   const actualizarFacturacion = async (items) => {
     try {
       const res = await actualizarEstadoFacturacion(items);
+      toast.success('Facturación actualizada');
       await cargarServicios();
       await cargarServiciosSinFacturar();
       return res;
     } catch (error) {
       console.error('Error al actualizar facturación:', error);
+      toast.error('Error al actualizar estado de facturación');
       throw error;
     }
   };
@@ -141,21 +175,24 @@ export const ServicioProvider = ({ children }) => {
   const recepcionarLote = async (ids, fecha) => {
     try {
       await recepcionarServiciosLote({ ids, fechaRecepcion: fecha });
-      await cargarServiciosSinFacturar();
+      toast.success('Guías recepcionadas');
       await cargarServicios();
+      await cargarServiciosSinFacturar();
     } catch (error) {
       console.error('Error al recepcionar lote:', error);
+      toast.error('Error al recepcionar lote');
     }
   };
 
-  // ✅ NUEVO: función para anular servicio
   const anular = async (id) => {
     try {
       await anularServicio(id);
+      toast.success('Servicio anulado');
       await cargarServicios();
       await cargarPendientes();
     } catch (error) {
       console.error('Error al anular servicio:', error);
+      toast.error('Error al anular servicio');
     }
   };
 
@@ -185,7 +222,7 @@ export const ServicioProvider = ({ children }) => {
         borrarServicio,
         actualizarFacturacion,
         recepcionarLote,
-        anular // ✅ exportar función
+        anular
       }}
     >
       {children}

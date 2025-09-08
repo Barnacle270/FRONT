@@ -19,3 +19,9 @@ export const descargarReporteServicios = async (desde, hasta) => {
     throw error;
   }
 };
+
+export const obtenerPendientesFacturar = async () => {
+  const response = await axios.get('/reportes/pendientes-facturar');
+  return response.data;
+};
+

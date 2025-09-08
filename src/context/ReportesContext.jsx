@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { descargarReporteServicios } from '../api/reportes';
+import { descargarReporteServicios, obtenerPendientesFacturar } from '../api/reportes';
 import { toast } from 'react-hot-toast';
 
 const ReportesContext = createContext();
@@ -14,8 +14,18 @@ export const ReportesProvider = ({ children }) => {
     }
   };
 
+  const cargarPendientesFacturar = async () => {
+    try {
+      const data = await obtenerPendientesFacturar();
+      return data;
+    } catch (error) {
+      toast.error('Error al cargar pendientes de facturación');
+      return [];
+    }
+  };
+
   return (
-    <ReportesContext.Provider value={{ descargarServicios }}>
+    <ReportesContext.Provider value={{ descargarServicios, cargarPendientesFacturar }}>
       {children}
     </ReportesContext.Provider>
   );

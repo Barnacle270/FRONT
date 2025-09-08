@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUsuarios } from "../context/UserContext";
 
-const rolesDisponibles = ["usuario", "administrador", "superadministrador"];
+const rolesDisponibles = ["User", "Administrador", "Superadministrador","Almacen"];
 
 const UsuarioForm = ({ usuario = null, onSuccess }) => {
   const { crearUsuario, editarUsuario } = useUsuarios();
@@ -11,7 +11,7 @@ const UsuarioForm = ({ usuario = null, onSuccess }) => {
     name: "",
     email: "",
     password: "",
-    role: "usuario",
+    role: "User",
   });
 
   const [error, setError] = useState("");
@@ -23,7 +23,7 @@ const UsuarioForm = ({ usuario = null, onSuccess }) => {
         name: usuario.name || "",
         email: usuario.email || "",
         password: "",
-        role: usuario.role || "usuario",
+        role: usuario.role || "User",
       });
     }
   }, [usuario]);
@@ -49,7 +49,7 @@ const UsuarioForm = ({ usuario = null, onSuccess }) => {
       }
 
       if (onSuccess) onSuccess(); // cerrar modal o recargar lista
-      setForm({ dni: "", name: "", email: "", password: "", role: "usuario" });
+      setForm({ dni: "", name: "", email: "", password: "", role: "User" });
     } catch (err) {
       setError("Error al guardar usuario");
       console.error(err);

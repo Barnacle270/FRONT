@@ -1,58 +1,76 @@
-import { useEffect } from 'react';
-import { useClientes } from '../context/ClienteContext';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useClientes } from "../context/ClienteContext";
+import { HiPencil } from "react-icons/hi2";
+import ClienteModal from "../components/modals/ClienteModal";
 
 function ClientesPage() {
   const { clientes, cargarClientes, loading } = useClientes();
+  const [modalId, setModalId] = useState(undefined); // null para nuevo, ID para editar
 
   useEffect(() => {
     cargarClientes();
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-white">Lista de Clientes</h2>
-        <Link
-          to="/clientes/nuevo"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded"
-        >
-          + Nuevo Cliente
-        </Link>
+    <div className="p-6 text-text-primary">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Clientes</h1>
+          <button
+            onClick={() => setModalId(null)}
+            className="bg-button-primary hover:brightness-110 text-white px-4 py-2 rounded"
+          >
+            + Nuevo Cliente
+          </button>
+        </div>
+
+        {loading ? (
+          <p className="text-sm text-text-secondary">Cargando clientes...</p>
+        ) : clientes.length === 0 ? (
+          <p className="text-sm text-text-secondary">No hay clientes registrados.</p>
+        ) : (
+          <div className="overflow-x-auto bg-surface rounded shadow-md">
+            <table className="min-w-full table-auto text-sm">
+              <thead className="bg-navbar text-text-secondary">
+                <tr>
+                  <th className="p-2 text-left">Razón Social</th>
+                  <th className="p-2 text-left">RUC</th>
+                  <th className="p-2 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {clientes.map((cliente) => (
+                  <tr
+                    key={cliente._id}
+                    className="border-t border-neutral-800 hover:bg-neutral-800/40"
+                  >
+                    <td className="p-2">{cliente.razonSocial}</td>
+                    <td className="p-2">{cliente.ruc}</td>
+                    <td className="p-2 flex justify-center">
+                      <button
+                        onClick={() => setModalId(cliente._id)}
+                        className="w-8 h-8 bg-highlight text-white rounded hover:brightness-110 flex items-center justify-center"
+                        title="Editar cliente"
+                      >
+                        <HiPencil className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {loading ? (
-        <p className="text-white">Cargando clientes...</p>
-      ) : clientes.length === 0 ? (
-        <p className="text-white">No hay clientes registrados.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-surface text-white rounded-md shadow-md">
-            <thead>
-              <tr className="bg-gray-700 text-left">
-                <th className="py-2 px-4">Razón Social</th>
-                <th className="py-2 px-4">RUC</th>
-                <th className="py-2 px-4">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clientes.map((cliente) => (
-                <tr key={cliente._id} className="border-t border-gray-600">
-                  <td className="py-2 px-4">{cliente.razonSocial}</td>
-                  <td className="py-2 px-4">{cliente.ruc}</td>
-                  <td className="py-2 px-4">
-                    <Link
-                      to={`/clientes/editar/${cliente._id}`}
-                      className="text-blue-400 hover:underline"
-                    >
-                      Editar
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {modalId !== undefined && (
+        <ClienteModal
+          id={modalId}
+          onClose={() => {
+            setModalId(undefined);
+            cargarClientes();
+          }}
+        />
       )}
     </div>
   );

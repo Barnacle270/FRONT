@@ -1,6 +1,7 @@
 import axios from './axios';
 
-export const getEstadisticas = async () => {
-  const res = await axios.get('dashboard/estadisticas');
+// period puede ser: '7d', '30d', '90d', 'MTD', 'YTD'
+export const getEstadisticas = async (period = '30d') => {
+  const res = await axios.get(`dashboard/estadisticas?period=${encodeURIComponent(period)}`);
   return res.data;
 };

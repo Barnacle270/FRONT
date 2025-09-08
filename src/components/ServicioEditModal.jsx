@@ -3,9 +3,10 @@ import { useServicios } from '../context/ServicioContext';
 import { useClientes } from '../context/ClienteContext';
 import { useConductores } from '../context/ConductorContext';
 import toast from 'react-hot-toast';
+import { HiXCircle } from 'react-icons/hi2';
 
-const ServicioEditModal = ({ id, onClose, recargar }) => {
-  const { obtenerPorId, actualizarServicio, borrarServicio } = useServicios();
+const ServicioEditModal = ({ id, onClose }) => {
+  const { obtenerPorId, actualizarServicio } = useServicios();
   const { clientes, cargarClientes } = useClientes();
   const { conductores, cargarConductores } = useConductores();
 
@@ -38,24 +39,9 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
     e.preventDefault();
     try {
       await actualizarServicio(id, form);
-      toast.success('Cambios guardados');
-      recargar();
       onClose();
     } catch (error) {
       toast.error('Error al guardar');
-    }
-  };
-
-  const handleDelete = async () => {
-    const confirmar = confirm('¿Eliminar este servicio? Esta acción no se puede deshacer.');
-    if (!confirmar) return;
-    try {
-      await borrarServicio(id);
-      toast.success('Servicio eliminado');
-      recargar();
-      onClose();
-    } catch (error) {
-      toast.error('Error al eliminar');
     }
   };
 
@@ -66,7 +52,7 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
         type="text"
         value={form[name] || ''}
         readOnly
-        className="input opacity-70 cursor-not-allowed"
+        className="w-full bg-input border border-neutral-700 rounded px-3 py-2 opacity-70 cursor-not-allowed"
       />
     </div>
   );
@@ -79,26 +65,29 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
         name={name}
         value={form[name] || ''}
         onChange={handleChange}
-        className="input"
+        className="w-full bg-input border border-neutral-700 rounded px-3 py-2"
       />
     </div>
   );
 
+  if (!id) return null;
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
       <div className="bg-surface text-text-primary p-6 rounded-2xl w-full max-w-5xl shadow-xl relative animate-fade-in max-h-[90vh] overflow-y-auto">
 
         {/* Botón cerrar */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-xl text-white hover:text-red-400"
+          className="absolute top-3 right-4 text-red-400 hover:text-red-600"
         >
-          ✖
+          <HiXCircle className="w-6 h-6" />
         </button>
 
-        <h1 className="text-2xl font-bold mb-4">Editar Servicio</h1>
+        <h1 className="text-2xl font-bold mb-6">Editar Servicio</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+
           {/* Información del traslado */}
           <section>
             <h2 className="text-lg font-semibold mb-2">📦 Información del traslado</h2>
@@ -123,7 +112,7 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
                     name="cliente"
                     value={form.cliente || ''}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full bg-input border border-neutral-700 rounded px-3 py-2"
                   >
                     <option value="">Selecciona un cliente</option>
                     {clientes.map((c) => (
@@ -138,7 +127,7 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
                       type="text"
                       value={form.cliente || ''}
                       readOnly
-                      className="input opacity-70 cursor-not-allowed"
+                      className="w-full bg-input border border-neutral-700 rounded px-3 py-2 opacity-70 cursor-not-allowed"
                     />
                     <button
                       type="button"
@@ -174,7 +163,7 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
                     name="conductorDevolucion"
                     value={form.conductorDevolucion || ''}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full bg-input border border-neutral-700 rounded px-3 py-2"
                   >
                     <option value="">Selecciona un conductor</option>
                     {conductores.map((c) => (
@@ -189,7 +178,7 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
                       type="text"
                       value={form.conductorDevolucion || ''}
                       readOnly
-                      className="input opacity-70 cursor-not-allowed"
+                      className="w-full bg-input border border-neutral-700 rounded px-3 py-2 opacity-70 cursor-not-allowed"
                     />
                     <button
                       type="button"
@@ -204,8 +193,8 @@ const ServicioEditModal = ({ id, onClose, recargar }) => {
             </div>
           </section>
 
-          <div className="flex flex-col gap-2 mt-6">
-            <button type="submit" className="btn btn-primary w-full">
+          <div className="flex justify-end mt-6">
+            <button type="submit" className="bg-button-primary text-white px-6 py-2 rounded hover:bg-blue-600">
               Guardar Cambios
             </button>
           </div>

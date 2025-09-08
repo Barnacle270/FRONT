@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class', // ✅ Activar dark mode por clase
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
@@ -30,9 +31,8 @@ export default {
           '100%': { opacity: 1, transform: 'scale(1)' },
         },
       },
-
       ringColor: {
-        focus: '#00BFA5', // este es tu color de foco personalizado
+        focus: '#00BFA5',
       },
     },
   },

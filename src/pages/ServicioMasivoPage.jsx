@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useServicios } from '../context/ServicioContext';
-import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const ServicioMasivoPage = () => {
   const { importarXMLMasivo } = useServicios();
@@ -21,10 +21,10 @@ const ServicioMasivoPage = () => {
     }
 
     const formData = new FormData();
-    formData.append('cliente', ''); // cliente vacío por defecto
+    formData.append('cliente', '');
 
     xmlFiles.forEach((file) => {
-      formData.append('xmls', file); // clave: debe coincidir con upload.array('xmls')
+      formData.append('xmls', file);
     });
 
     try {
@@ -38,29 +38,35 @@ const ServicioMasivoPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-primary flex items-center justify-center p-6">
-      <div className="w-full max-w-xl card">
-        <h1 className="text-2xl font-bold mb-6">Importación Masiva de Servicios</h1>
+    <div className="p-6 text-text-primary">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Importación Masiva</h1>
+      </div>
 
+      <div className="bg-surface rounded shadow-md p-6 max-w-2xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block mb-1 text-text-secondary">Archivos XML</label>
+            <label className="block text-sm text-text-secondary mb-1">
+              Selecciona archivos XML
+            </label>
             <input
               type="file"
               accept=".xml"
               multiple
               onChange={handleFileChange}
-              className="input"
-              required
+              className="w-full text-sm bg-background border border-neutral-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {xmlFiles.length > 0 && (
-              <p className="text-sm text-text-secondary mt-1">
+              <p className="text-sm text-neutral-400 mt-1">
                 {xmlFiles.length} archivo(s) seleccionado(s)
               </p>
             )}
           </div>
 
-          <button type="submit" className="btn btn-primary w-full">
+          <button
+            type="submit"
+            className="bg-button-primary hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
+          >
             Importar Archivos
           </button>
         </form>
