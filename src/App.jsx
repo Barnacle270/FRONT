@@ -1,8 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
-import { Toaster } from 'react-hot-toast';
-
-import Navbar from "./components/Navbar";
-import ProtectedRoute from "./ProtectedRoute";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 // Auth y contextos
 import { AuthProvider } from "./context/AuthContext";
@@ -15,7 +12,11 @@ import { LecturaProvider } from "./context/LecturaContext";
 import { ReportesProvider } from "./context/ReportesContext";
 import { DashboardProvider } from "./context/DashboardContext";
 import { UserProvider } from "./context/UserContext";
-import { ServicioProvider } from './context/ServicioContext.jsx';
+import { ServicioProvider } from "./context/ServicioContext.jsx";
+
+// Componentes
+import Sidebar from "./components/Sidebar";
+import ProtectedRoute from "./ProtectedRoute";
 
 // Páginas
 import LoginPage from "./pages/LoginPage";
@@ -39,18 +40,60 @@ import LecturasPage from "./pages/LecturasPage";
 import MantenimientosPage from "./pages/MantenimientosPage";
 import MantenimientosProximosPage from "./pages/MantenimientosProximosPage";
 import GeneralPage from "./pages/GeneralPage.jsx";
+import { useState } from "react";
 
-
-// ✅ Layout para rutas protegidas
+// ✅ Layout con Sidebar colapsable
 function Layout() {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <>
-      <Navbar />
-      <main className="container mx-auto px-2">
+    <div className="h-screen flex bg-gray-950 text-white">
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+
+      <main
+        className={`flex-1 overflow-y-auto p-6 transition-all duration-300 ${
+          collapsed ? "md:pl-20" : "md:pl-64"
+        }`}
+      >
         <Toaster position="top-right" reverseOrder={false} />
-        <Outlet />
+
+        <Routes>
+          <Route path="/" element={<GeneralPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/profile" element={<ProfileTask />} />
+
+          <Route path="/add-boletas" element={<BoletasFormPage />} />
+          <Route path="/boletas" element={<BoletasPage />} />
+
+          <Route path="/servicios" element={<ServicioPage />} />
+          <Route path="/historial" element={<ServiciosHistorialPage />} />
+          <Route path="/devoluciones" element={<DevolucionesPage />} />
+
+          <Route path="/reportes" element={<ReportesPage />} />
+          <Route
+            path="/reportes/pendientes-facturar"
+            element={<PendientesFacturarPage />}
+          />
+
+          <Route path="/admin/usuarios" element={<GestionUsuarios />} />
+          <Route path="/usuarios" element={<UsuariosPage />} />
+
+          <Route path="/importacion-masiva" element={<ServicioMasivoPage />} />
+
+          <Route path="/clientes" element={<ClientesPage />} />
+          <Route path="/conductores" element={<ConductoresPage />} />
+          <Route path="/recepcion-facturas" element={<RecepcionFacturasPage />} />
+
+          <Route path="/maquinarias" element={<MaquinariasPage />} />
+          <Route path="/mantenimientos" element={<MantenimientosPage />} />
+          <Route path="/lecturas" element={<LecturasPage />} />
+          <Route
+            path="/mantenimiento-pendiente"
+            element={<MantenimientosProximosPage />}
+          />
+        </Routes>
       </main>
-    </>
+    </div>
   );
 }
 
@@ -69,42 +112,12 @@ function App() {
                         <UserProvider>
                           <Router>
                             <Routes>
-                              {/* Públicas */}
+                              {/* Ruta pública */}
                               <Route path="/login" element={<LoginPage />} />
-                              {/* Protegidas */}
+
+                              {/* Rutas protegidas con Sidebar */}
                               <Route element={<ProtectedRoute />}>
-                                <Route element={<Layout />}>
-
-                                  <Route path="/" element={<GeneralPage />} />
-
-                                  <Route path="/home" element={<HomePage />} />
-                                  <Route path="/profile" element={<ProfileTask />} />
-
-                                  <Route path="/add-boletas" element={<BoletasFormPage />} />
-                                  <Route path="/boletas" element={<BoletasPage />} />
-
-                                  <Route path="/servicios" element={<ServicioPage />} />
-                                  <Route path="/historial" element={<ServiciosHistorialPage />} />
-                                  <Route path="/devoluciones" element={<DevolucionesPage />} />
-
-                                  <Route path="/reportes" element={<ReportesPage />} />
-                                  <Route path="/reportes/pendientes-facturar" element={<PendientesFacturarPage />} />
-
-                                  <Route path="/admin/usuarios" element={<GestionUsuarios />} />
-                                  <Route path="/usuarios" element={<UsuariosPage />} />
-
-                                  <Route path="/importacion-masiva" element={<ServicioMasivoPage />} />
-
-                                  <Route path="/clientes" element={<ClientesPage />} />
-                                  <Route path="/conductores" element={<ConductoresPage />} />
-                                  <Route path="/recepcion-facturas" element={<RecepcionFacturasPage />} />
-
-                                  <Route path="/maquinarias" element={<MaquinariasPage />} />
-                                  <Route path="/mantenimientos" element={<MantenimientosPage />} />
-                                  <Route path="/lecturas" element={<LecturasPage />} />
-                                  <Route path="/mantenimiento-pendiente" element={<MantenimientosProximosPage />} />
-
-                                </Route>
+                                <Route path="/*" element={<Layout />} />
                               </Route>
                             </Routes>
                           </Router>

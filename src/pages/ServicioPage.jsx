@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useServicios } from '../context/ServicioContext';
-import { useClientes } from '../context/ClienteContext';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useServicios } from "../context/ServicioContext";
+import { useClientes } from "../context/ClienteContext";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const ServicioPage = () => {
   const { importarXML } = useServicios();
@@ -10,10 +10,11 @@ const ServicioPage = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    tipoCarga: '',
-    cliente: ''
+    tipoCarga: "",
+    cliente: "",
   });
   const [xmlFile, setXmlFile] = useState(null);
+  const [loading, setLoading] = useState(false); // 👈 nuevo estado
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,39 +27,53 @@ const ServicioPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!xmlFile || !formData.tipoCarga || !formData.cliente) {
-      toast.error('Todos los campos son obligatorios.');
+      toast.error("Todos los campos son obligatorios.");
       return;
     }
 
     const data = new FormData();
-    data.append('xml', xmlFile);
-    data.append('tipoCarga', formData.tipoCarga);
-    data.append('cliente', formData.cliente);
+    data.append("xml", xmlFile);
+    data.append("tipoCarga", formData.tipoCarga);
+    data.append("cliente", formData.cliente);
 
     try {
+      setLoading(true);
       await importarXML(data);
-      toast.success('Servicio importado correctamente');
-      navigate('/historial');
+      toast.success("Servicio importado correctamente");
+
+      // reset form
+      setFormData({ tipoCarga: "", cliente: "" });
+      setXmlFile(null);
+
+      navigate("/historial");
     } catch (error) {
-      toast.error('Error al importar el servicio');
+      toast.error("Error al importar el servicio");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-background text-text-primary flex items-center justify-center p-6">
-      <div className="w-full max-w-xl card">
+      <div className="w-full max-w-xl bg-card p-6 rounded-lg shadow-lg border border-zinc-800">
         <h1 className="text-2xl font-bold mb-6">Importar Servicio desde XML</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Selector de cliente */}
+          {/* Cliente */}
           <div>
-            <label className="block mb-1 text-text-secondary">Cliente</label>
+            <label
+              htmlFor="cliente"
+              className="block mb-1 text-text-secondary text-sm"
+            >
+              Cliente
+            </label>
             <select
+              id="cliente"
               name="cliente"
               value={formData.cliente}
               onChange={handleChange}
-              className="input"
+              className="input w-full"
               required
             >
               <option value="">Seleccione un cliente</option>
@@ -70,14 +85,20 @@ const ServicioPage = () => {
             </select>
           </div>
 
-          {/* Selector de tipo de carga */}
+          {/* Tipo de carga */}
           <div>
-            <label className="block mb-1 text-text-secondary">Tipo de Carga</label>
+            <label
+              htmlFor="tipoCarga"
+              className="block mb-1 text-text-secondary text-sm"
+            >
+              Tipo de Carga
+            </label>
             <select
+              id="tipoCarga"
               name="tipoCarga"
               value={formData.tipoCarga}
               onChange={handleChange}
-              className="input"
+              className="input w-full"
               required
             >
               <option value="">Seleccione una opción</option>
@@ -90,18 +111,28 @@ const ServicioPage = () => {
 
           {/* Archivo XML */}
           <div>
-            <label className="block mb-1 text-text-secondary">Archivo XML</label>
+            <label
+              htmlFor="xmlFile"
+              className="block mb-1 text-text-secondary text-sm"
+            >
+              Archivo XML
+            </label>
             <input
+              id="xmlFile"
               type="file"
               accept=".xml"
               onChange={handleFileChange}
-              className="input"
+              className="input w-full"
               required
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-full">
-            Importar Servicio
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {loading ? "Importando..." : "Importar Servicio"}
           </button>
         </form>
       </div>

@@ -2,6 +2,11 @@
 export default {
   darkMode: 'class', // ✅ Activar dark mode por clase
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  safelist: [
+    'estado-pendiente',
+    'estado-anulada',
+    'estado-concluido'
+  ],
   theme: {
     extend: {
       backgroundColor: {

@@ -5,13 +5,9 @@ import toast from 'react-hot-toast';
 import { HiCheckCircle } from 'react-icons/hi';
 
 const RecepcionFacturasPage = () => {
-  const {
-    noFacturados,
-    cargarServiciosSinFacturar,
-    recepcionarLote
-  } = useServicios();
-
+  const { noFacturados, cargarServiciosSinFacturar, recepcionarLote } = useServicios();
   const { user } = useAuth();
+
   const [seleccionados, setSeleccionados] = useState([]);
   const [fechaRecepcion, setFechaRecepcion] = useState('');
 
@@ -51,6 +47,9 @@ const RecepcionFacturasPage = () => {
     return guiaA.localeCompare(guiaB, 'es', { numeric: true });
   });
 
+  // 🔹 Normaliza estado (ej: "ANULADA" -> "estado-anulada")
+  const getEstadoClass = (estado) => `estado-${estado?.toLowerCase()}`;
+
   return (
     <div className="p-6 text-text-primary">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
@@ -69,10 +68,7 @@ const RecepcionFacturasPage = () => {
             </div>
 
             <button
-              className={`flex items-center gap-2 px-4 py-2 rounded text-sm transition ${seleccionados.length > 0 && fechaRecepcion
-                  ? 'bg-green-600 hover:bg-green-700 text-white'
-                  : 'bg-neutral-600 text-neutral-300 cursor-not-allowed'
-                }`}
+              className={`btn ${seleccionados.length > 0 && fechaRecepcion ? 'btn-success' : 'bg-neutral-600 text-neutral-300 cursor-not-allowed'}`}
               onClick={marcarRecepcion}
               disabled={seleccionados.length === 0 || !fechaRecepcion}
               title="Recepcionar guías seleccionadas"
@@ -87,42 +83,76 @@ const RecepcionFacturasPage = () => {
       {noFacturadosOrdenados.length === 0 ? (
         <p className="text-sm text-neutral-400">No hay servicios pendientes por recepcionar.</p>
       ) : (
-        <div className="overflow-x-auto bg-surface rounded shadow-md">
-          <table className="min-w-full table-auto text-sm">
-            <thead className="bg-navbar text-text-secondary">
-              <tr>
-                {esAdmin && <th className="p-2 text-center">Seleccionar</th>}
-                <th className="p-2 text-center">Guía</th>
-                <th className="p-2 text-center">Cliente</th>
-                <th className="p-2 text-center">Fecha Traslado</th>
-                <th className="p-2 text-center">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {noFacturadosOrdenados.map((servicio) => (
-                <tr
-                  key={servicio._id}
-                  className="border-t border-neutral-800 hover:bg-neutral-800/40"
-                >
-                  {esAdmin && (
-                    <td className="p-2 text-center">
-                      <input
-                        type="checkbox"
-                        checked={seleccionados.includes(servicio._id)}
-                        onChange={() => toggleSeleccion(servicio._id)}
-                        className="accent-white w-4 h-4"
-                      />
-                    </td>
-                  )}
-                  <td className="p-2 text-center">{servicio.numeroGuia}</td>
-                  <td className="p-2 text-center">{servicio.cliente}</td>
-                  <td className="p-2 text-center">{servicio.fechaTraslado?.slice(0, 10)}</td>
-                  <td className="p-2 text-center">{servicio.estado}</td>
+        <>
+          {/* Vista escritorio */}
+          <div className="hidden md:block overflow-x-auto bg-surface rounded shadow-md">
+            <table className="min-w-full table-auto text-sm">
+              <thead className="bg-navbar text-text-secondary">
+                <tr>
+                  {esAdmin && <th className="p-2 text-center">Seleccionar</th>}
+                  <th className="p-2 text-center">Guía</th>
+                  <th className="p-2 text-center">Cliente</th>
+                  <th className="p-2 text-center">N° Contenedor</th>
+                  <th className="p-2 text-center">Fecha Traslado</th>
+                  <th className="p-2 text-center">Estado</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {noFacturadosOrdenados.map((servicio) => (
+                  <tr key={servicio._id} className="border-t border-neutral-800 hover:bg-neutral-800/40">
+                    {esAdmin && (
+                      <td className="p-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={seleccionados.includes(servicio._id)}
+                          onChange={() => toggleSeleccion(servicio._id)}
+                          className="accent-white w-4 h-4"
+                        />
+                      </td>
+                    )}
+                    <td className="p-2 text-center">{servicio.numeroGuia}</td>
+                    <td className="p-2 text-center">{servicio.cliente}</td>
+                    <td className="p-2 text-center">{servicio.numeroContenedor}</td>
+                    <td className="p-2 text-center">{servicio.fechaTraslado?.slice(0, 10)}</td>
+                    <td className="p-2 text-center">
+                      <span className={getEstadoClass(servicio.estado)}>
+                        {servicio.estado}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Vista móvil */}
+          <div className="block md:hidden space-y-4">
+            {noFacturadosOrdenados.map((servicio) => (
+              <div key={servicio._id} className="bg-surface p-4 rounded shadow-md">
+                {esAdmin && (
+                  <div className="mb-2">
+                    <input
+                      type="checkbox"
+                      checked={seleccionados.includes(servicio._id)}
+                      onChange={() => toggleSeleccion(servicio._id)}
+                      className="accent-white w-4 h-4 mr-2"
+                    />
+                    <span className="text-sm">Seleccionar</span>
+                  </div>
+                )}
+                <p><strong>Guía:</strong> {servicio.numeroGuia}</p>
+                <p><strong>Cliente:</strong> {servicio.cliente}</p>
+                <p><strong>Fecha Traslado:</strong> {servicio.fechaTraslado?.slice(0, 10)}</p>
+                <p>
+                  <strong>Estado:</strong>{' '}
+                  <span className={getEstadoClass(servicio.estado)}>
+                    {servicio.estado}
+                  </span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

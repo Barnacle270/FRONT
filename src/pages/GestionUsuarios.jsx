@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 const rolesDisponibles = ["usuario", "administrador", "superadministrador"];
 
 const GestionUsuarios = () => {
   const { user, isAuthenticated, users, getAllUsers, updateUserRole } = useAuth();
   const [rolesEditados, setRolesEditados] = useState({});
+  const [saving, setSaving] = useState({}); // estado de carga por usuario
 
-  console.log(user)
   useEffect(() => {
-    if (isAuthenticated && (user.role === "administrador" || user.role === "superadministrador")) {
+    if (isAuthenticated && ["administrador", "superadministrador"].includes(user.role)) {
       getAllUsers();
     }
   }, [isAuthenticated, user, getAllUsers]);
 
   const handleRoleChange = (userId, newRole) => {
-    setRolesEditados({ ...rolesEditados, [userId]: newRole });
+    setRolesEditados((prev) => ({ ...prev, [userId]: newRole }));
   };
 
   const guardarCambio = async (userId) => {
@@ -23,10 +24,14 @@ const GestionUsuarios = () => {
     if (!nuevoRol) return;
 
     try {
+      setSaving((prev) => ({ ...prev, [userId]: true }));
       await updateUserRole(userId, nuevoRol);
-      alert("Rol actualizado con éxito");
+      toast.success("Rol actualizado con éxito");
     } catch (error) {
-      alert("Error al actualizar rol");
+      console.error("Error al actualizar rol:", error);
+      toast.error(error.response?.data?.message || "Error al actualizar rol");
+    } finally {
+      setSaving((prev) => ({ ...prev, [userId]: false }));
     }
   };
 
@@ -38,7 +43,7 @@ const GestionUsuarios = () => {
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Gestión de Usuarios</h1>
 
-      <table className="w-full border">
+      <table className="w-full border rounded overflow-hidden shadow-md">
         <thead>
           <tr className="bg-gray-200 text-left">
             <th className="p-2">Nombre</th>
@@ -48,33 +53,43 @@ const GestionUsuarios = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((u) => (
-            <tr key={u._id} className="border-t">
-              <td className="p-2">{u.name}</td>
-              <td className="p-2">{u.dni}</td>
-              <td className="p-2">
-                <select
-                  value={rolesEditados[u._id] || u.role}
-                  onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                  className="border rounded px-2 py-1"
-                >
-                  {rolesDisponibles.map((rol) => (
-                    <option key={rol} value={rol}>
-                      {rol}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() => guardarCambio(u._id)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                >
-                  Guardar
-                </button>
-              </td>
-            </tr>
-          ))}
+          {users.map((u) => {
+            const rolSeleccionado = rolesEditados[u._id] || u.role;
+            const cambioPendiente = rolSeleccionado !== u.role;
+
+            return (
+              <tr key={u._id} className="border-t hover:bg-gray-50">
+                <td className="p-2">{u.name}</td>
+                <td className="p-2">{u.dni}</td>
+                <td className="p-2">
+                  <select
+                    value={rolSeleccionado}
+                    onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                    className="border rounded px-2 py-1"
+                  >
+                    {rolesDisponibles.map((rol) => (
+                      <option key={rol} value={rol}>
+                        {rol}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-2">
+                  <button
+                    onClick={() => guardarCambio(u._id)}
+                    disabled={!cambioPendiente || saving[u._id]}
+                    className={`px-3 py-1 rounded text-white ${
+                      cambioPendiente
+                        ? "bg-blue-500 hover:bg-blue-600"
+                        : "bg-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {saving[u._id] ? "Guardando..." : "Guardar"}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

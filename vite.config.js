@@ -3,6 +3,17 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    sourcemap: false, // quita los mapas en producción (menos peso)
+    chunkSizeWarningLimit: 1000, // evita warnings con bundles grandes
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'], // divide dependencias grandes en chunks
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': {

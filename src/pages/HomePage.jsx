@@ -14,7 +14,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  LabelList,        // 👈 nuevo
+  LabelList,
 } from "recharts";
 import {
   FaArrowUp,
@@ -31,14 +31,19 @@ import { useDashboard } from "../context/DashboardContext";
 
 const fmt = new Intl.NumberFormat("es-PE");
 
-/** Tooltip styles to avoid white-on-white text */
 const tooltipCommon = {
   labelStyle: { color: "#111" },
   itemStyle: { color: "#111" },
   contentStyle: { background: "#fff", borderColor: "#e5e7eb", color: "#111" },
 };
 
-/** Simple placeholder when series has no data */
+const commonAxis = {
+  stroke: "#999",
+  tick: { fill: "#bbb", fontSize: 12 },
+};
+
+const commonGrid = <CartesianGrid strokeDasharray="3 3" stroke="#333" />;
+
 function NoData({ children = "Sin datos para el periodo" }) {
   return (
     <div className="h-full w-full flex items-center justify-center text-white/60 text-sm">
@@ -63,7 +68,12 @@ function Sparkline({ data = [] }) {
   );
 }
 
-function StatCard({ title, value, color, icon, delta = 0, series = [] }) {
+function StatCard({ title, value, color, icon, delta = 0, series = [], loading }) {
+  if (loading) {
+    return (
+      <div className="rounded-2xl shadow-lg p-4 bg-neutral-800 animate-pulse h-28"></div>
+    );
+  }
   const deltaPositive = (delta || 0) >= 0;
   return (
     <motion.div
@@ -109,7 +119,6 @@ function estadoLabel(estado) {
   return estado || "—";
 }
 
-/** Tick personalizado para nombres largos en el eje Y (trunca pero mantiene tooltip con nombre completo) */
 function YTickCliente({ x, y, payload, maxChars = 32 }) {
   const label = String(payload.value ?? "");
   const text = label.length > maxChars ? label.slice(0, maxChars - 1) + "…" : label;
@@ -137,7 +146,7 @@ export default function DashboardPageV3() {
       deltas: stats?.deltas || {},
       series: stats?.series || { serviciosPorDia: [], estadosPorDia: [], facturacion: [] },
       ultimos: stats?.ultimos || [],
-      topClientes: stats?.topClientes || [], // [{ cliente, cantidad }]
+      topClientes: stats?.topClientes || [],
     }),
     [stats]
   );
@@ -215,7 +224,7 @@ export default function DashboardPageV3() {
         <p className="text-white/70 mt-1">Resumen de tu operación</p>
       </motion.div>
 
-      {/* Period controls (desde el contexto) */}
+      {/* Period controls */}
       <div className="flex flex-wrap items-center gap-3 justify-between">
         <div className="inline-flex rounded-xl shadow-sm overflow-hidden">
           {["7d", "30d", "90d", "MTD", "YTD"].map((p) => (
@@ -238,7 +247,7 @@ export default function DashboardPageV3() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {cards.map((c) => (
-          <StatCard key={c.title} {...c} />
+          <StatCard key={c.title} {...c} loading={loading} />
         ))}
       </div>
 
@@ -248,17 +257,27 @@ export default function DashboardPageV3() {
         <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
           <h3 className="text-white font-semibold mb-2">Servicios por día</h3>
           <div className="h-64">
-            {serviciosPorDia.length === 0 ? (
+            {loading ? (
+              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+            ) : serviciosPorDia.length === 0 ? (
               <NoData />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={serviciosPorDia.map((d) => ({ name: d.date, total: d.total }))}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="name" stroke="#999" tick={{ fill: "#bbb", fontSize: 12 }} />
-                  <YAxis stroke="#999" tick={{ fill: "#bbb", fontSize: 12 }} />
+                  {commonGrid}
+                  <XAxis dataKey="name" {...commonAxis} />
+                  <YAxis {...commonAxis} />
                   <Tooltip {...tooltipCommon} formatter={(v) => fmt.format(v)} />
                   <Legend />
-                  <Line type="monotone" dataKey="total" stroke="#6EE7F9" strokeWidth={2} dot={false} />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#6EE7F9"
+                    strokeWidth={2}
+                    dot={false}
+                    isAnimationActive
+                    animationDuration={600}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -269,35 +288,47 @@ export default function DashboardPageV3() {
         <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
           <h3 className="text-white font-semibold mb-2">Estados por día</h3>
           <div className="h-64">
-            {estadosPorDia.length === 0 ? (
+            {loading ? (
+              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+            ) : estadosPorDia.length === 0 ? (
               <NoData />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={estadosPorDia}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="date" stroke="#999" tick={{ fill: "#bbb", fontSize: 12 }} />
-                  <YAxis stroke="#999" tick={{ fill: "#bbb", fontSize: 12 }} />
+                  {commonGrid}
+                  <XAxis dataKey="date" {...commonAxis} />
+                  <YAxis {...commonAxis} />
                   <Tooltip {...tooltipCommon} formatter={(v) => fmt.format(v)} />
                   <Legend />
-                  <Bar dataKey="pendientes" stackId="a" fill="#FBBF24" />
-                  <Bar dataKey="concluidos" stackId="a" fill="#34D399" />
-                  <Bar dataKey="anuladas" stackId="a" fill="#F87171" />
+                  <Bar dataKey="pendientes" stackId="a" fill="#FBBF24" isAnimationActive animationDuration={600} />
+                  <Bar dataKey="concluidos" stackId="a" fill="#34D399" isAnimationActive animationDuration={600} />
+                  <Bar dataKey="anuladas" stackId="a" fill="#F87171" isAnimationActive animationDuration={600} />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </div>
         </div>
 
-        {/* Facturación (conteo) */}
+        {/* Facturación */}
         <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
           <h3 className="text-white font-semibold mb-2">Facturación</h3>
           <div className="h-64">
-            {facturacion.length === 0 ? (
+            {loading ? (
+              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+            ) : facturacion.length === 0 ? (
               <NoData />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={90} label>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={90}
+                    label
+                    isAnimationActive
+                    animationDuration={800}
+                  >
                     {pieData.map((_, idx) => (
                       <Cell key={idx} fill={["#A78BFA", "#FB923C"][idx]} />
                     ))}
@@ -313,17 +344,17 @@ export default function DashboardPageV3() {
 
       {/* Top clientes & Últimos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Top clientes por servicios (conteo) — MEJORADO */}
+        {/* Top clientes */}
         <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg overflow-hidden">
           <h3 className="text-white font-semibold mb-2">Top clientes por servicios</h3>
-
           <div
             style={{
-              // altura dinámica: 32px por barra (mín 200, máx 420)
               height: Math.max(200, Math.min((kpis.topClientes?.length || 0) * 32, 420)),
             }}
           >
-            {(kpis.topClientes?.length ?? 0) === 0 ? (
+            {loading ? (
+              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+            ) : (kpis.topClientes?.length ?? 0) === 0 ? (
               <NoData />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -333,9 +364,7 @@ export default function DashboardPageV3() {
                   margin={{ top: 8, right: 16, bottom: 8, left: 8 }}
                   barCategoryGap={6}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-
-                  {/* Mostrar TODAS las etiquetas y dar espacio suficiente */}
+                  {commonGrid}
                   <YAxis
                     dataKey="cliente"
                     type="category"
@@ -345,32 +374,14 @@ export default function DashboardPageV3() {
                     axisLine={false}
                     tick={<YTickCliente maxChars={32} />}
                   />
-
-                  <XAxis
-                    type="number"
-                    stroke="#999"
-                    tick={{ fill: "#bbb", fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                    allowDecimals={false}
-                  />
-
+                  <XAxis type="number" {...commonAxis} allowDecimals={false} axisLine={false} tickLine={false} />
                   <Tooltip
                     {...tooltipCommon}
                     labelFormatter={(lbl) => `Cliente: ${lbl || "—"}`}
                     formatter={(v) => [`${v} servicio${v === 1 ? "" : "s"}`, "Cantidad"]}
                   />
-
-                  {/* Legend es redundante aquí; lo omitimos para más aire */}
-                  {/* <Legend /> */}
-
-                  <Bar dataKey="cantidad" fill="#60A5FA" radius={[6, 6, 6, 6]}>
-                    <LabelList
-                      dataKey="cantidad"
-                      position="right"
-                      className="fill-white"
-                      formatter={(v) => v}
-                    />
+                  <Bar dataKey="cantidad" fill="#60A5FA" radius={[6, 6, 6, 6]} isAnimationActive animationDuration={600}>
+                    <LabelList dataKey="cantidad" position="right" className="fill-white" />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -382,11 +393,13 @@ export default function DashboardPageV3() {
         <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
           <h3 className="text-white font-semibold mb-3">Últimos servicios</h3>
           <div className="overflow-x-auto">
-            {(kpis.ultimos?.length ?? 0) === 0 ? (
+            {loading ? (
+              <div className="h-64 bg-neutral-800 animate-pulse rounded-xl" />
+            ) : (kpis.ultimos?.length ?? 0) === 0 ? (
               <div className="py-6 text-center text-white/60 text-sm">Sin datos para el periodo</div>
             ) : (
               <table className="min-w-full border-separate border-spacing-y-2">
-                <thead>
+                <thead className="sticky top-0 bg-neutral-900 z-10">
                   <tr className="text-left text-white/80 text-sm">
                     <th className="px-2 py-1">Fecha</th>
                     <th className="px-2 py-1">N° Guía</th>
@@ -400,7 +413,9 @@ export default function DashboardPageV3() {
                     <tr key={r.id} className="bg-neutral-800/60 text-white text-sm">
                       <td className="px-2 py-2 whitespace-nowrap">{r.fecha}</td>
                       <td className="px-2 py-2 whitespace-nowrap">{r.numeroGuia}</td>
-                      <td className="px-2 py-2 whitespace-nowrap">{r.cliente || "—"}</td>
+                      <td className="px-2 py-2 whitespace-nowrap" title={r.cliente}>
+                        {r.cliente || "—"}
+                      </td>
                       <td className="px-2 py-2 whitespace-nowrap">{r.servicio || "—"}</td>
                       <td className="px-2 py-2 whitespace-nowrap">
                         <span className={`px-2 py-1 rounded-full text-xs ${estadoBadge(r.estado)}`}>

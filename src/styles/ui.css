@@ -34,4 +34,21 @@
   .table-head {
     @apply bg-surface text-text-secondary uppercase text-xs tracking-wide;
   }
+
+  /* 🔹 Estados con estilo neón solo en el texto */
+  .estado-pendiente {
+    @apply text-yellow-400 font-bold drop-shadow-[0_0_6px_#facc15];
+  }
+
+  .estado-anulada {
+    @apply text-red-500 font-bold drop-shadow-[0_0_6px_#f87171];
+  }
+
+  .estado-concluido {
+    @apply text-green-400 font-bold drop-shadow-[0_0_6px_#4ade80];
+  }
+
+  /* Estados de facturación */
+
+
 }

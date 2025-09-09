@@ -1,18 +1,23 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from './context/AuthContext'
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 function ProtectedRoute() {
-  const { loading , isAuthenticated } = useAuth()
+  const { loading, isAuthenticated } = useAuth();
 
-  if (loading) return <h1>Loading...</h1>
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-950 text-white">
+        <span className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent"></span>
+        <p className="ml-3">Cargando...</p>
+      </div>
+    );
+  }
 
-  if (!loading && !isAuthenticated)
-  
-    return <Navigate to="/login" replace />
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
-  return (
-    <Outlet />
-  )
+  return <Outlet />;
 }
 
-export default ProtectedRoute
+export default ProtectedRoute;
