@@ -17,8 +17,6 @@ import { DashboardProvider } from "./context/DashboardContext";
 import { UserProvider } from "./context/UserContext";
 import { ServicioProvider } from './context/ServicioContext.jsx';
 
-
-
 // Páginas
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
