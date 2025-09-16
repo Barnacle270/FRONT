@@ -1,20 +1,32 @@
-import { Navigate, Outlet } from "react-router-dom";
+// ProtectedRoute.jsx
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { canAccess } from "./utils/permissions";
 
-function ProtectedRoute() {
-  const { loading, isAuthenticated } = useAuth();
+function ProtectedRoute({ roles }) {
+  const { loading, isAuthenticated, user } = useAuth();
+  const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-950 text-white">
-        <span className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent"></span>
-        <p className="ml-3">Cargando...</p>
-      </div>
-    );
+    return <div>⏳ Cargando...</div>;
   }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // 👇 Ruta raíz (/) siempre permitida
+  if (location.pathname === "/") {
+    return <Outlet />;
+  }
+
+  // 👇 Validar roles solo para otras rutas
+  if (roles && !roles.includes(user?.role)) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-900 text-red-500">
+        🚫 No tienes permisos para acceder a esta página
+      </div>
+    );
   }
 
   return <Outlet />;

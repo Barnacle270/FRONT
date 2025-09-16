@@ -1,23 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import {
-  FaFileAlt,
-  FaTruck,
-  FaChartBar,
-  FaUsers,
-  FaUserTie,
-  FaReceipt,
-  FaSignOutAlt,
-  FaSignInAlt,
-  FaTools,
-  FaCogs,
-  FaClipboardList,
-  FaTachometerAlt,
-  FaBars,
-  FaTimes,
-} from "react-icons/fa";
+import { permissions } from "../utils/permissions";
 import { ChevronDown } from "lucide-react";
+import { FaBars, FaTimes, FaSignOutAlt, FaSignInAlt } from "react-icons/fa";
 
 function Sidebar({ collapsed, setCollapsed }) {
   const { isAuthenticated, logout, user } = useAuth();
@@ -25,56 +11,11 @@ function Sidebar({ collapsed, setCollapsed }) {
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   const role = user?.role;
-
-  const canView = {
-    servicios: ["Superadministrador", "Administrador", "Coordinador"].includes(role),
-    devoluciones: ["Superadministrador", "Administrador", "Coordinador"].includes(role),
-    reportes: ["Superadministrador", "Administrador", "Coordinador"].includes(role),
-    boletas: ["Superadministrador", "Administrador", "Coordinador", "User"].includes(role),
-    datos: ["Superadministrador", "Administrador"].includes(role),
-    admin: role === "Superadministrador",
-  };
+  const rolePermissions = permissions[role]?.routes || [];
 
   const toggleDropdown = (id) => {
     setActiveDropdown((prev) => (prev === id ? null : id));
   };
-
-  const dropdownItem = (to, label, key, icon) => (
-    <li key={key}>
-      <Link
-        to={to}
-        className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-zinc-800 hover:text-white rounded-md transition-colors text-sm"
-        onClick={() => setMobileOpen(false)}
-      >
-        {icon}
-        {!collapsed && label}
-      </Link>
-    </li>
-  );
-
-  const dropdownMenu = (id, label, items, icon) => (
-    <li key={id}>
-      <button
-        onClick={() => toggleDropdown(id)}
-        className="flex items-center justify-between w-full px-3 py-2 text-gray-300 hover:bg-zinc-800 hover:text-white rounded-md transition-colors text-sm"
-      >
-        <span className="flex items-center gap-3">
-          {icon}
-          {!collapsed && label}
-        </span>
-        {!collapsed && (
-          <ChevronDown
-            className={`w-4 h-4 transform transition-transform ${
-              activeDropdown === id ? "rotate-180" : ""
-            }`}
-          />
-        )}
-      </button>
-      {activeDropdown === id && !collapsed && (
-        <ul className="ml-6 mt-1 space-y-1">{items.filter(Boolean)}</ul>
-      )}
-    </li>
-  );
 
   return (
     <>
@@ -101,7 +42,6 @@ function Sidebar({ collapsed, setCollapsed }) {
           >
             TRANSPORTES J
           </h1>
-          {/* Botón para colapsar en desktop */}
           <button
             className="hidden md:block text-gray-300 hover:text-white"
             onClick={() => setCollapsed(!collapsed)}
@@ -114,57 +54,43 @@ function Sidebar({ collapsed, setCollapsed }) {
         <nav className="flex-1 p-4 text-sm">
           <ul className="space-y-2">
             {isAuthenticated ? (
-              <>
-                {(role === "Superadministrador" || role === "Administrador") &&
-                  dropdownMenu("dashboard", "Dashboard", [
-                    dropdownItem("/home", "Transporte", "home", <FaTruck />),
-                  ], <FaTachometerAlt />)}
+              rolePermissions.map((menu) => (
+                <li key={menu.id}>
+                  <button
+                    onClick={() => toggleDropdown(menu.id)}
+                    className="flex items-center justify-between w-full px-3 py-2 text-gray-300 hover:bg-zinc-800 hover:text-white rounded-md transition-colors text-sm"
+                  >
+                    <span className="flex items-center gap-3">
+                      <menu.icon className="h-5 w-5" />
+                      {!collapsed && menu.label}
+                    </span>
+                    {!collapsed && (
+                      <ChevronDown
+                        className={`w-4 h-4 transform transition-transform ${
+                          activeDropdown === menu.id ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </button>
 
-                {canView.servicios &&
-                  dropdownMenu("servicios", "Servicios", [
-                    dropdownItem("/servicios", "Importar XML", "servicios-importar", <FaFileAlt />),
-                    dropdownItem("/historial", "Historial de Servicios", "servicios-historial", <FaFileAlt />),
-                    dropdownItem("/recepcion-facturas", "Recepción Guías", "recepcion", <FaFileAlt />),
-                  ], <FaFileAlt />)}
-
-                {canView.devoluciones &&
-                  dropdownMenu("devoluciones", "Devoluciones", [
-                    dropdownItem("/devoluciones", "Ver pendientes", "devoluciones-pendientes", <FaTruck />),
-                  ], <FaTruck />)}
-
-                {canView.reportes &&
-                  dropdownMenu("reportes", "Reportes", [
-                    dropdownItem("/reportes", "Reporte de Servicios", "reportes-servicios", <FaChartBar />),
-                    dropdownItem("/reportes/pendientes-facturar", "Pendientes de Facturar", "reportes-pendientes", <FaFileAlt />),
-                  ], <FaChartBar />)}
-
-                {canView.boletas &&
-                  dropdownMenu("boletas", "Boletas", [
-                    dropdownItem("/boletas", "Mis Boletas", "boletas-mias", <FaReceipt />),
-                    (role === "Superadministrador" || role === "Administrador") &&
-                      dropdownItem("/add-boletas", "Agregar Boleta", "boletas-agregar", <FaReceipt />),
-                  ], <FaReceipt />)}
-
-                {canView.datos &&
-                  dropdownMenu("datos", "Datos", [
-                    dropdownItem("/clientes", "Clientes", "datos-clientes", <FaUsers />),
-                    dropdownItem("/conductores", "Conductores", "datos-conductores", <FaUserTie />),
-                  ], <FaUsers />)}
-
-                {(role === "Superadministrador" || role === "Administrador") &&
-                  dropdownMenu("mantenimiento", "Mantenimiento", [
-                    dropdownItem("/maquinarias", "Maquinarias", "mantenimiento-maquinarias", <FaCogs />),
-                    dropdownItem("/lecturas", "Lecturas", "mantenimiento-lecturas", <FaClipboardList />),
-                    dropdownItem("/mantenimientos", "Mantenimientos", "mantenimiento-mantenimientos", <FaTools />),
-                    dropdownItem("/mantenimiento-pendiente", "Mantenimientos Vencidos", "mantenimiento-vencidos", <FaFileAlt />),
-                  ], <FaTools />)}
-
-                {canView.admin &&
-                  dropdownMenu("admin", "Admin", [
-                    dropdownItem("/usuarios", "Gestionar Usuarios", "admin-usuarios", <FaUsers />),
-                    dropdownItem("/configuracion", "Configuración", "admin-config", <FaChartBar />),
-                  ], <FaUserTie />)}
-              </>
+                  {activeDropdown === menu.id && !collapsed && (
+                    <ul className="ml-6 mt-1 space-y-1">
+                      {menu.children.map((child) => (
+                        <li key={child.path}>
+                          <Link
+                            to={child.path}
+                            className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-zinc-800 hover:text-white rounded-md transition-colors text-sm"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            <child.icon className="h-4 w-4" />
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))
             ) : (
               <li>
                 <Link

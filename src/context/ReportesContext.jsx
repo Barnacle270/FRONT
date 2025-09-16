@@ -1,11 +1,19 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext } from 'react';
 import { descargarReporteServicios, obtenerPendientesFacturar } from '../api/reportes';
 import { toast } from 'react-hot-toast';
+import { useAuth } from './AuthContext'; // 👈 Importar auth
 
 const ReportesContext = createContext();
 
 export const ReportesProvider = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+
   const descargarServicios = async (desde, hasta) => {
+    if (!isAuthenticated) {
+      toast.error('No estás autenticado');
+      return;
+    }
+
     try {
       await descargarReporteServicios(desde, hasta);
       toast.success('Reporte descargado exitosamente');
@@ -15,9 +23,14 @@ export const ReportesProvider = ({ children }) => {
   };
 
   const cargarPendientesFacturar = async () => {
+    if (!isAuthenticated) {
+      toast.error('No estás autenticado');
+      return [];
+    }
+
     try {
       const data = await obtenerPendientesFacturar();
-      return data;
+      return data || [];
     } catch (error) {
       toast.error('Error al cargar pendientes de facturación');
       return [];
@@ -31,4 +44,8 @@ export const ReportesProvider = ({ children }) => {
   );
 };
 
-export const useReportes = () => useContext(ReportesContext);
+export const useReportes = () => {
+  const ctx = useContext(ReportesContext);
+  if (!ctx) throw new Error('useReportes debe usarse dentro de ReportesProvider');
+  return ctx;
+};

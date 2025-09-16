@@ -1,24 +1,28 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getEstadisticas } from '../api/dashboard';
+import { useAuth } from './AuthContext'; // 👈 Importamos AuthContext
 
 const DashboardContext = createContext(null);
 
 const DEFAULT_PERIOD = '30d'; // '7d' | '30d' | '90d' | 'MTD' | 'YTD'
 
 export const DashboardProvider = ({ children }) => {
+  const { isAuthenticated } = useAuth(); // 👈 Saber si hay sesión
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [period, setPeriod] = useState(DEFAULT_PERIOD);
 
-  // (Opcional) cache simple por periodo para evitar parpadeos al alternar
+  // Cache simple por periodo
   const cacheRef = useRef(new Map());
 
   const cargarEstadisticas = async (nextPeriod = period) => {
+    if (!isAuthenticated) return; // 🚨 Evitar llamadas sin sesión
+
     setLoading(true);
     setError(null);
     try {
-      // Si hay cache para ese periodo, úsalo al vuelo (optimista)
+      // Si hay cache para ese periodo, úsalo optimistamente
       const cached = cacheRef.current.get(nextPeriod);
       if (cached) setStats(cached);
 
@@ -29,6 +33,7 @@ export const DashboardProvider = ({ children }) => {
     } catch (err) {
       console.error('Error al cargar estadísticas del dashboard:', err);
       setError(err);
+      setStats(null);
     } finally {
       setLoading(false);
     }
@@ -40,10 +45,16 @@ export const DashboardProvider = ({ children }) => {
     return cargarEstadisticas(nextPeriod);
   };
 
+  // 🚨 Solo cargar si hay sesión
   useEffect(() => {
-    cargarEstadisticas(DEFAULT_PERIOD);
+    if (isAuthenticated) {
+      cargarEstadisticas(DEFAULT_PERIOD);
+    } else {
+      setStats(null);
+      cacheRef.current.clear(); // limpiar cache al desloguear
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticated]);
 
   const value = useMemo(
     () => ({ stats, loading, error, period, setPeriod, cargarEstadisticas, refresh }),

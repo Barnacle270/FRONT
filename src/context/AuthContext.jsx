@@ -6,14 +6,13 @@ import {
   verifyTokenRequest,
   logoutRequest,
 } from "../api/auth";
-import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within a AuthProvider");
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
 
@@ -23,22 +22,7 @@ export const AuthProvider = ({ children }) => {
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Persistir user en localStorage
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
-  }, [user]);
-
-  // Al montar, intentar cargar usuario de localStorage
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-  }, []);
-
-  // Borrar errores después de 2 seg
+  // 🧹 Limpiar errores después de 2 seg
   useEffect(() => {
     if (errors.length > 0) {
       const timer = setTimeout(() => setErrors([]), 2000);
@@ -46,61 +30,82 @@ export const AuthProvider = ({ children }) => {
     }
   }, [errors]);
 
+  // 📌 Normalizador de errores
+  const normalizeError = (error, fallback) => {
+    const err = error.response?.data;
+    return Array.isArray(err) ? err[0] : (err?.message || fallback);
+  };
+
+  // REGISTRO
   const signup = async (formData) => {
     try {
       const res = await registerRequest(formData);
-      if (res.status === 200) {
-        setUser(res.data);
-        setIsAuthenticated(true);
-        toast.success("Usuario registrado con éxito");
-      }
+      const { accessToken, user: userData } = res.data;
+
+      setUser(userData);
+      setIsAuthenticated(true);
+
+      if (accessToken) localStorage.setItem("accessToken", accessToken);
+
+      toast.success("Usuario registrado con éxito");
     } catch (error) {
-      const err = error.response?.data || "Error al registrarse";
-      setErrors([err]);
-      toast.error(err.message || "Error en registro");
+      const msg = normalizeError(error, "Error al registrarse");
+      setErrors([msg]);
+      toast.error(msg);
     }
   };
 
+  // LOGIN
   const signin = async (formData) => {
     try {
       const res = await loginRequest(formData);
-      setUser(res.data);
+      const { accessToken, user: userData } = res.data;
+
+      setUser(userData);
       setIsAuthenticated(true);
+
+      if (accessToken) localStorage.setItem("accessToken", accessToken);
+
       toast.success("¡Bienvenido!");
     } catch (error) {
-      const err = error.response?.data || "Error al iniciar sesión";
-      setErrors([err]);
-      toast.error(err.message || "Error en login");
+      const msg = normalizeError(error, "Error al iniciar sesión");
+      setErrors([msg]);
+      toast.error(msg);
     }
   };
 
+  // LOGOUT
   const logout = async () => {
     try {
       await logoutRequest();
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     } finally {
-      localStorage.removeItem("user");
-      Cookies.remove("token");
+      localStorage.removeItem("accessToken");
       setUser(null);
       setIsAuthenticated(false);
       toast("Sesión cerrada", { icon: "👋" });
     }
   };
 
-  // Verificar sesión al cargar la app
+  // 🔐 Verificar sesión al montar la app
   useEffect(() => {
     const checkLogin = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        setUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await verifyTokenRequest();
-        if (!res.data) {
-          setIsAuthenticated(false);
-          setLoading(false);
-          return;
-        }
         setUser(res.data);
         setIsAuthenticated(true);
       } catch {
+        localStorage.removeItem("accessToken");
+        setUser(null);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
@@ -109,23 +114,20 @@ export const AuthProvider = ({ children }) => {
     checkLogin();
   }, []);
 
-  // Renovar token cada 5 min
+  // 🔔 Escuchar evento de expiración de sesión
   useEffect(() => {
-    let interval;
-    if (isAuthenticated) {
-      interval = setInterval(async () => {
-        try {
-          await verifyTokenRequest();
-        } catch {
-          setIsAuthenticated(false);
-          setUser(null);
-        }
-      }, 5 * 60 * 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
+    const handleSessionExpired = () => {
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem("accessToken");
+      toast.error("Tu sesión ha expirado. Vuelve a iniciar sesión.");
+    };
 
-  // Memoize value para evitar renders innecesarios
+    window.addEventListener("sessionExpired", handleSessionExpired);
+    return () =>
+      window.removeEventListener("sessionExpired", handleSessionExpired);
+  }, []);
+
   const value = useMemo(
     () => ({
       user,

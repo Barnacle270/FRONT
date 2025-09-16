@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { useState } from "react";
 
 // Auth y contextos
 import { AuthProvider } from "./context/AuthContext";
@@ -17,6 +18,7 @@ import { ServicioProvider } from "./context/ServicioContext.jsx";
 // Componentes
 import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./ProtectedRoute";
+import RouteChangeLoader from "./components/RouteChangeLoader"; // 👈 nuevo
 
 // Páginas
 import LoginPage from "./pages/LoginPage";
@@ -40,7 +42,6 @@ import LecturasPage from "./pages/LecturasPage";
 import MantenimientosPage from "./pages/MantenimientosPage";
 import MantenimientosProximosPage from "./pages/MantenimientosProximosPage";
 import GeneralPage from "./pages/GeneralPage.jsx";
-import { useState } from "react";
 
 // ✅ Layout con Sidebar colapsable
 function Layout() {
@@ -111,6 +112,9 @@ function App() {
                       <BoletaProvider>
                         <UserProvider>
                           <Router>
+                            {/* 👇 Loader global para cambios de ruta */}
+                            <RouteChangeLoader />
+
                             <Routes>
                               {/* Ruta pública */}
                               <Route path="/login" element={<LoginPage />} />

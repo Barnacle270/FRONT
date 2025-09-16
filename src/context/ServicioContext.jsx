@@ -16,6 +16,7 @@ import {
   recepcionarServiciosLote,
   anularServicio
 } from '../api/Servicios';
+import { useAuth } from './AuthContext'; // 👈 Importar autenticación
 
 const ServicioContext = createContext();
 
@@ -43,6 +44,7 @@ const useCargar = (fn) => {
 };
 
 export const ServicioProvider = ({ children }) => {
+  const { isAuthenticated } = useAuth(); // 👈 Saber si hay sesión
   const [servicios, setServicios] = useState([]);
   const [pendientes, setPendientes] = useState([]);
   const [noFacturados, setNoFacturados] = useState([]);
@@ -54,27 +56,30 @@ export const ServicioProvider = ({ children }) => {
   const { ejecutar: cargarNoFacturadosBase } = useCargar(getServiciosSinFacturar);
 
   const cargarServicios = async () => {
+    if (!isAuthenticated) return;
     try {
       const data = await cargarServiciosBase();
-      setServicios(data);
+      setServicios(data || []);
     } catch (err) {
       setError('Error al cargar servicios');
     }
   };
 
   const cargarPendientes = async () => {
+    if (!isAuthenticated) return;
     try {
       const data = await cargarPendientesBase();
-      setPendientes(data);
+      setPendientes(data || []);
     } catch (err) {
       setError('Error al cargar pendientes');
     }
   };
 
   const cargarServiciosSinFacturar = async () => {
+    if (!isAuthenticated) return;
     try {
       const data = await cargarNoFacturadosBase();
-      setNoFacturados(data);
+      setNoFacturados(data || []);
     } catch (err) {
       setError('Error al cargar sin facturar');
     }
@@ -82,6 +87,7 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Importar XML
   const importarXML = async (formData) => {
+    if (!isAuthenticated) return;
     try {
       await importarServicioDesdeXML(formData);
       toast.success('Servicio importado correctamente');
@@ -92,6 +98,7 @@ export const ServicioProvider = ({ children }) => {
   };
 
   const importarXMLMasivo = async (formData) => {
+    if (!isAuthenticated) return;
     try {
       await importarServiciosMasivos(formData);
       toast.success('Importación masiva completada');
@@ -103,6 +110,7 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Actualización manual
   const actualizarManual = async (id, data) => {
+    if (!isAuthenticated) return;
     try {
       await actualizarServicioManual(id, data);
       toast.success('Servicio actualizado');
@@ -114,6 +122,7 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Marcar devuelto
   const marcarDevuelto = async (id, body = {}) => {
+    if (!isAuthenticated) return;
     try {
       await marcarServicioComoDevuelto(id, body);
       toast.success('Servicio marcado como devuelto');
@@ -125,6 +134,7 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Obtener por fecha / ID
   const obtenerPorFecha = async (fecha) => {
+    if (!isAuthenticated) return [];
     try {
       return await getServiciosPorFecha(fecha);
     } catch (err) {
@@ -134,6 +144,7 @@ export const ServicioProvider = ({ children }) => {
   };
 
   const obtenerPorId = async (id) => {
+    if (!isAuthenticated) return null;
     try {
       return await getServicioPorId(id);
     } catch (err) {
@@ -144,11 +155,12 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Editar servicio
   const actualizarServicio = async (id, data) => {
+    if (!isAuthenticated) return null;
     try {
       const actualizado = await editarServicio(id, data);
       toast.success('Cambios guardados');
 
-      // Optimista: actualizo estado local
+      // Optimista
       setServicios((prev) => prev.map((s) => (s._id === id ? actualizado : s)));
       setPendientes((prev) => prev.map((s) => (s._id === id ? actualizado : s)));
       setNoFacturados((prev) => prev.map((s) => (s._id === id ? actualizado : s)));
@@ -162,11 +174,11 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Eliminar servicio
   const borrarServicio = async (id) => {
+    if (!isAuthenticated) return;
     try {
       await eliminarServicio(id);
       toast.success('Servicio eliminado');
 
-      // Optimista: actualizo estado local
       setServicios((prev) => prev.filter((s) => s._id !== id));
       setPendientes((prev) => prev.filter((s) => s._id !== id));
       setNoFacturados((prev) => prev.filter((s) => s._id !== id));
@@ -177,6 +189,7 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Actualizar facturación
   const actualizarFacturacion = async (items) => {
+    if (!isAuthenticated) return;
     try {
       const res = await actualizarEstadoFacturacion(items);
       toast.success('Facturación actualizada');
@@ -190,6 +203,7 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Recepcionar lote
   const recepcionarLote = async (ids, fecha) => {
+    if (!isAuthenticated) return;
     try {
       await recepcionarServiciosLote({ ids, fechaRecepcion: fecha });
       toast.success('Guías recepcionadas');
@@ -201,6 +215,7 @@ export const ServicioProvider = ({ children }) => {
 
   // 🔹 Anular servicio
   const anular = async (id) => {
+    if (!isAuthenticated) return;
     try {
       await anularServicio(id);
       toast.success('Servicio anulado');
@@ -210,10 +225,17 @@ export const ServicioProvider = ({ children }) => {
     }
   };
 
-  // 🔹 Cargar datos iniciales
+  // 🔹 Cargar datos iniciales solo si hay sesión
   useEffect(() => {
-    Promise.all([cargarServicios(), cargarPendientes(), cargarServiciosSinFacturar()]);
-  }, []);
+    if (isAuthenticated) {
+      Promise.all([cargarServicios(), cargarPendientes(), cargarServiciosSinFacturar()]);
+    } else {
+      setServicios([]);
+      setPendientes([]);
+      setNoFacturados([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   return (
     <ServicioContext.Provider

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "../api/axios";
+import { useAuth } from "./AuthContext"; // 👈 Importamos autenticación
 
 const BoletaContext = createContext();
 
@@ -10,6 +11,8 @@ export const useBoleta = () => {
 };
 
 export function BoletaProvider({ children }) {
+  const { isAuthenticated, loading: authLoading } = useAuth(); // 👈 usamos loading de AuthContext
+
   const [boletas, setBoletas] = useState([]);
   const [totalBoletas, setTotalBoletas] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,6 +23,7 @@ export function BoletaProvider({ children }) {
 
   // 📌 Obtener boletas con paginación
   const getBoletas = async (page = 1) => {
+    if (!isAuthenticated || authLoading) return; // 👈 evitar si no hay sesión o Auth aún carga
     setLoading(true);
     setError(null);
     try {
@@ -28,14 +32,17 @@ export function BoletaProvider({ children }) {
       setTotalBoletas(res.data.total);
       setCurrentPage(res.data.page);
     } catch (err) {
-      setError(err.response?.data?.message || "Error al cargar boletas");
+      if (err.response?.status !== 401) {
+        setError(err.response?.data?.message || "Error al cargar boletas");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // 📌 Crear boleta (con imagen)
+  // 📌 Crear boleta
   const createBoleta = async (boleta) => {
+    if (!isAuthenticated || authLoading) return;
     setLoading(true);
     setError(null);
     try {
@@ -48,7 +55,7 @@ export function BoletaProvider({ children }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Actualizar lista automáticamente
+      // Recargar lista
       await getBoletas(currentPage);
 
       return res.data;
@@ -60,11 +67,16 @@ export function BoletaProvider({ children }) {
     }
   };
 
-  // 📌 Recargar boletas cuando cambie la página
+  // 📌 Recargar boletas solo si hay sesión y Auth ya terminó de cargar
   useEffect(() => {
-    getBoletas(currentPage);
+    if (!authLoading && isAuthenticated) {
+      getBoletas(currentPage);
+    } else if (!authLoading && !isAuthenticated) {
+      setBoletas([]); // limpiar si no hay sesión
+      setTotalBoletas(0);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  }, [isAuthenticated, authLoading, currentPage]);
 
   return (
     <BoletaContext.Provider
