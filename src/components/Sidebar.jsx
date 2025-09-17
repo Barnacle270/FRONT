@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { permissions } from "../utils/permissions";
 import { ChevronDown } from "lucide-react";
-import { FaBars, FaTimes, FaSignOutAlt, FaSignInAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaSignInAlt } from "react-icons/fa";
 
 function Sidebar({ collapsed, setCollapsed }) {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
@@ -29,19 +29,28 @@ function Sidebar({ collapsed, setCollapsed }) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 bg-zinc-900/95 backdrop-blur-md border-r border-zinc-800 shadow-lg transition-all duration-300
+        className={`fixed inset-y-0 left-0 z-40 bg-zinc-900/95 backdrop-blur-md 
+        border-r border-zinc-800 shadow-lg transition-all duration-300
         ${collapsed ? "w-20" : "w-64"}
         ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         {/* Logo + toggle desktop */}
         <div className="flex items-center justify-between p-6 border-b border-zinc-800">
-          <h1
-            className={`text-xl font-bold text-white tracking-tight transition-all duration-300 ${
-              collapsed && "opacity-0 w-0"
-            }`}
-          >
-            TRANSPORTES J
-          </h1>
+          <div className="flex items-center gap-2">
+
+            {/* Texto TRANSPORTES J (oculto si está colapsado) */}
+            {!collapsed && (
+              <Link
+                to="/"
+                onClick={() => setMobileOpen(false)}
+                className="text-xl font-bold text-white tracking-tight hover:text-indigo-400 transition-colors"
+              >
+                TRANSPORTES J
+              </Link>
+            )}
+          </div>
+
+          {/* Botón colapsar/expandir (solo desktop) */}
           <button
             className="hidden md:block text-gray-300 hover:text-white"
             onClick={() => setCollapsed(!collapsed)}
@@ -105,20 +114,7 @@ function Sidebar({ collapsed, setCollapsed }) {
           </ul>
         </nav>
 
-        {/* Footer: Logout */}
-        {isAuthenticated && (
-          <div className="p-4 border-t border-zinc-800">
-            <button
-              onClick={() => {
-                logout();
-                setMobileOpen(false);
-              }}
-              className="flex items-center gap-3 px-3 py-2 w-full text-red-400 hover:text-white hover:bg-red-600 rounded-md transition-colors"
-            >
-              <FaSignOutAlt /> {!collapsed && "Salir"}
-            </button>
-          </div>
-        )}
+
       </aside>
     </>
   );

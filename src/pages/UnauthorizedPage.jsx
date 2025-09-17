@@ -27,7 +27,6 @@ export default function UnauthorizedPage() {
 
       {/* Footer */}
       <p className="text-gray-600 text-sm mt-12">
-        🚀 Transportes J •
       </p>
     </section>
   );

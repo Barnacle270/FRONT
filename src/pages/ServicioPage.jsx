@@ -14,7 +14,7 @@ const ServicioPage = () => {
     cliente: "",
   });
   const [xmlFile, setXmlFile] = useState(null);
-  const [loading, setLoading] = useState(false); // 👈 nuevo estado
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -55,7 +55,7 @@ const ServicioPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-primary flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-950 text-text-primary flex items-center justify-center p-6">
       <div className="w-full max-w-xl bg-card p-6 rounded-lg shadow-lg border border-zinc-800">
         <h1 className="text-2xl font-bold mb-6">Importar Servicio desde XML</h1>
 

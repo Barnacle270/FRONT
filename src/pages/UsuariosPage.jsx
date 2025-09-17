@@ -44,7 +44,7 @@ const UsuariosPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-primary p-6">
+    <div className="min-h-screen bg-gray-950 text-text-primary p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">👥 Gestión de Usuarios</h1>
@@ -56,7 +56,10 @@ const UsuariosPage = () => {
       {/* Tabla */}
       {loading ? (
         <div className="flex items-center justify-center py-10 text-text-secondary">
-          <svg className="animate-spin h-6 w-6 mr-2 text-sky-500" viewBox="0 0 24 24">
+          <svg
+            className="animate-spin h-6 w-6 mr-2 text-sky-500"
+            viewBox="0 0 24 24"
+          >
             <circle
               className="opacity-25"
               cx="12"
@@ -99,18 +102,24 @@ const UsuariosPage = () => {
                   <td className="px-4 py-2 capitalize">
                     <select
                       value={usuario.role}
-                      onChange={(e) => handleCambiarRol(usuario, e.target.value)}
+                      onChange={(e) =>
+                        handleCambiarRol(usuario, e.target.value)
+                      }
                       className="bg-background border border-neutral-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-sky-500"
                     >
                       <option value="usuario">Usuario</option>
                       <option value="administrador">Administrador</option>
-                      <option value="superadministrador">Superadministrador</option>
+                      <option value="superadministrador">
+                        Superadministrador
+                      </option>
                     </select>
                   </td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        usuario.activo ? "bg-button-success" : "bg-button-danger"
+                        usuario.activo
+                          ? "bg-button-success"
+                          : "bg-button-danger"
                       } text-white`}
                     >
                       {usuario.activo ? "Activo" : "Inactivo"}

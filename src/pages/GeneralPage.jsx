@@ -27,7 +27,7 @@ function GeneralPage() {
 
   if (loading) {
     return (
-      <section className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+      <section className="flex items-center justify-center min-h-screen bg-gray-950 text-white">
         <p className="animate-pulse">⏳ Despertando servidor, esto puede tardar unos segundos...</p>
       </section>
     );
@@ -35,14 +35,14 @@ function GeneralPage() {
 
   if (!backendReady) {
     return (
-      <section className="flex items-center justify-center min-h-screen bg-gray-900 text-red-400">
+      <section className="flex items-center justify-center min-h-screen bg-gray-950 text-red-400">
         <p>❌ No se pudo conectar al backend. Intenta de nuevo más tarde.</p>
       </section>
     );
   }
 
   return (
-    <section className="p-6 min-h-screen flex flex-col items-center bg-gradient-to-br from-gray-800 via-gray-900 to-black">
+    <section className="p-6 min-h-screen flex flex-col items-center bg-gray-950">
       {/* Bienvenida */}
       <div className="text-center mb-10 animate-fade-in">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
@@ -106,7 +106,6 @@ function GeneralPage() {
 
       {/* Footer */}
       <p className="text-gray-600 text-sm mt-12 animate-fade-in">
-        🚀 Transportes J •
       </p>
     </section>
   );

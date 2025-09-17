@@ -17,8 +17,9 @@ import { ServicioProvider } from "./context/ServicioContext.jsx";
 
 // Componentes
 import Sidebar from "./components/Sidebar";
+import Navbar from "./components/Navbar"; // 👈 navbar fijo
 import ProtectedRoute from "./ProtectedRoute";
-import RouteChangeLoader from "./components/RouteChangeLoader"; // 👈 nuevo
+import RouteChangeLoader from "./components/RouteChangeLoader";
 
 // Páginas
 import LoginPage from "./pages/LoginPage";
@@ -43,60 +44,64 @@ import MantenimientosPage from "./pages/MantenimientosPage";
 import MantenimientosProximosPage from "./pages/MantenimientosProximosPage";
 import GeneralPage from "./pages/GeneralPage.jsx";
 import StackerPage from "./pages/StackerPage.jsx";
+import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
 
-// ✅ Layout con Sidebar colapsable
+// ✅ Layout con Sidebar + Navbar fijo
 function Layout() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="h-screen flex bg-gray-950 text-white">
+      {/* Sidebar */}
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
-      <main
-        className={`flex-1 overflow-y-auto p-6 transition-all duration-300 ${collapsed ? "md:pl-20" : "md:pl-64"
-          }`}
-      >
-        <Toaster position="top-right" reverseOrder={false} />
+      {/* Contenedor derecho */}
+      <div className="flex-1 flex flex-col transition-all duration-300">
+        {/* Navbar fijo ocupa todo el ancho */}
+        <Navbar collapsed={collapsed} />
 
-        <Routes>
-          <Route path="/" element={<GeneralPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/profile" element={<ProfileTask />} />
+        {/* Contenido principal debajo del navbar */}
+        <main
+          className={`flex-1 overflow-y-auto p-6 pt-20 transition-all duration-300 ${collapsed ? "md:ml-20" : "md:ml-64"
+            }`}
+        >
+          <Toaster position="top-right" reverseOrder={false} />
 
-          <Route path="/add-boletas" element={<BoletasFormPage />} />
-          <Route path="/boletas" element={<BoletasPage />} />
+          <Routes>
+            <Route path="/" element={<GeneralPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/profile" element={<ProfileTask />} />
 
-          <Route path="/servicios" element={<ServicioPage />} />
-          <Route path="/historial" element={<ServiciosHistorialPage />} />
-          <Route path="/devoluciones" element={<DevolucionesPage />} />
+            <Route path="/add-boletas" element={<BoletasFormPage />} />
+            <Route path="/boletas" element={<BoletasPage />} />
 
-          <Route path="/reportes" element={<ReportesPage />} />
-          <Route
-            path="/reportes/pendientes-facturar"
-            element={<PendientesFacturarPage />}
-          />
+            <Route path="/servicios" element={<ServicioPage />} />
+            <Route path="/historial" element={<ServiciosHistorialPage />} />
+            <Route path="/devoluciones" element={<DevolucionesPage />} />
 
-          <Route path="/admin/usuarios" element={<GestionUsuarios />} />
-          <Route path="/usuarios" element={<UsuariosPage />} />
+            <Route path="/reportes" element={<ReportesPage />} />
+            <Route
+              path="/reportes/pendientes-facturar"
+              element={<PendientesFacturarPage />}
+            />
 
-          <Route path="/importacion-masiva" element={<ServicioMasivoPage />} />
+            <Route path="/admin/usuarios" element={<GestionUsuarios />} />
+            <Route path="/usuarios" element={<UsuariosPage />} />
 
-          <Route path="/clientes" element={<ClientesPage />} />
-          <Route path="/conductores" element={<ConductoresPage />} />
-          <Route path="/recepcion-facturas" element={<RecepcionFacturasPage />} />
+            <Route path="/importacion-masiva" element={<ServicioMasivoPage />} />
 
-          <Route path="/maquinarias" element={<MaquinariasPage />} />
-          <Route path="/mantenimientos" element={<MantenimientosPage />} />
-          <Route path="/lecturas" element={<LecturasPage />} />
-          <Route
-            path="/mantenimiento-pendiente"
-            element={<MantenimientosProximosPage />}
-          />
+            <Route path="/clientes" element={<ClientesPage />} />
+            <Route path="/conductores" element={<ConductoresPage />} />
+            <Route path="/recepcion-facturas" element={<RecepcionFacturasPage />} />
 
-          <Route path="/stacker" element={<StackerPage />} />
-
-        </Routes>
-      </main>
+            <Route path="/maquinarias" element={<MaquinariasPage />} />
+            <Route path="/mantenimientos" element={<MantenimientosPage />} />
+            <Route path="/lecturas" element={<LecturasPage />} />
+            <Route path="/mantenimiento-pendiente" element={<MantenimientosProximosPage />} />
+            <Route path="/stacker" element={<StackerPage />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 }
@@ -120,9 +125,11 @@ function App() {
 
                             <Routes>
                               {/* Ruta pública */}
+                              <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
                               <Route path="/login" element={<LoginPage />} />
 
-                              {/* Rutas protegidas con Sidebar */}
+                              {/* Rutas protegidas */}
                               <Route element={<ProtectedRoute />}>
                                 <Route path="/*" element={<Layout />} />
                               </Route>
