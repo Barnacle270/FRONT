@@ -5,13 +5,17 @@ import ServicioEditModal from "../components/ServicioEditModal";
 import { HiPencil, HiCheck, HiChevronUp, HiChevronDown } from "react-icons/hi";
 
 const DevolucionesPage = () => {
-  const { pendientes, cargarPendientes, marcarDevuelto } = useServicios();
-  const [modalServicioId, setModalServicioId] = useState(null);
+  const {
+    pendientes,
+    cargarPendientes,
+    marcarDevuelto,
+    cambiarEstadoCarguio,
+  } = useServicios();
 
+  const [modalServicioId, setModalServicioId] = useState(null);
   const [orden, setOrden] = useState({ campo: null, direccion: "asc" });
   const [serviciosOrdenados, setServiciosOrdenados] = useState([]);
 
-  // filtro por fecha exacta
   const [filtroFecha, setFiltroFecha] = useState("");
   const [mostrarFiltroFecha, setMostrarFiltroFecha] = useState(false);
   const filtroRef = useRef(null);
@@ -24,7 +28,6 @@ const DevolucionesPage = () => {
     filtrarYOrdenarServicios();
   }, [pendientes, orden, filtroFecha]);
 
-  // cerrar popup al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (filtroRef.current && !filtroRef.current.contains(e.target)) {
@@ -38,14 +41,12 @@ const DevolucionesPage = () => {
   const filtrarYOrdenarServicios = () => {
     let lista = [...pendientes];
 
-    // filtro por fecha exacta
     if (filtroFecha) {
       lista = lista.filter(
         (s) => s.fechaDevolucion?.slice(0, 10) === filtroFecha
       );
     }
 
-    // ordenamiento
     const { campo, direccion } = orden;
     if (campo) {
       lista.sort((a, b) => {
@@ -83,6 +84,19 @@ const DevolucionesPage = () => {
     }
   };
 
+  const handleSolicitarCarguio = async (id) => {
+    const confirmar = confirm("¿Quieres solicitar el carguío de este contenedor?");
+    if (!confirmar) return;
+
+    try {
+      await cambiarEstadoCarguio(id, "PENDIENTE");
+      toast.success("Carguío solicitado correctamente");
+      cargarPendientes();
+    } catch (error) {
+      toast.error("Error al solicitar carguío");
+    }
+  };
+
   const calcularDiasFaltantes = (vencimiento) => {
     if (!vencimiento) return "—";
     const hoy = new Date();
@@ -102,9 +116,10 @@ const DevolucionesPage = () => {
 
   const getDiasClass = (dias) => {
     if (dias === "—") return "text-text-secondary";
-    if (dias < 0) return "text-red-500 drop-shadow-[0_0_6px_#f87171]";
-    if (dias <= 2) return "text-yellow-400 drop-shadow-[0_0_6px_#facc15]";
-    return "text-green-400 drop-shadow-[0_0_6px_#4ade80]";
+    if (dias < 0) return "text-red-500 font-bold drop-shadow-[0_0_6px_#f87171]";
+    if (dias <= 2)
+      return "text-yellow-400 font-bold drop-shadow-[0_0_6px_#facc15]";
+    return "text-green-400 font-bold drop-shadow-[0_0_6px_#4ade80]";
   };
 
   return (
@@ -185,10 +200,19 @@ const DevolucionesPage = () => {
                   return (
                     <tr
                       key={s._id}
-                      className="border-t border-neutral-800 hover:bg-neutral-800/40"
+                      className={`border-t border-neutral-800 transition hover:bg-neutral-800/40 
+                        ${
+                          s.estadoCarguio === "COMPLETADO"
+                            ? "bg-gradient-to-r from-green-900/50 to-green-700/40 border-l-4 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
+                            : ""
+                        }`}
                     >
-                      <td className="p-2 text-center">{s.cliente}</td>
-                      <td className="p-2 text-center">{s.numeroContenedor}</td>
+                      <td className="p-2 text-center font-medium">
+                        {s.cliente}
+                      </td>
+                      <td className="p-2 text-center">
+                        {s.numeroContenedor}
+                      </td>
                       <td className="p-2 text-center">
                         {s.terminalDevolucion || "—"}
                       </td>
@@ -196,15 +220,13 @@ const DevolucionesPage = () => {
                         {s.vencimientoMemo?.slice(0, 10) || "—"}
                       </td>
                       <td
-                        className={`p-2 text-center font-semibold ${getDiasClass(
-                          dias
-                        )}`}
+                        className={`p-2 text-center ${getDiasClass(dias)}`}
                       >
                         {dias === -9999
                           ? "—"
                           : dias < 0
-                          ? "VENCIDO"
-                          : `${dias} día(s)`}
+                          ? "⛔ VENCIDO"
+                          : `⏳ ${dias} día(s)`}
                       </td>
                       <td className="p-2 text-center">
                         {s.placaDevolucion || "—"}
@@ -220,17 +242,24 @@ const DevolucionesPage = () => {
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={() => setModalServicioId(s._id)}
-                            className="bg-highlight text-white p-2 rounded hover:brightness-110"
+                            className="bg-highlight text-white p-2 rounded hover:scale-105 transition"
                             title="Editar"
                           >
                             <HiPencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleMarcarDevuelto(s._id)}
-                            className="btn btn-success"
+                            className="bg-green-600 hover:bg-green-700 text-white p-2 rounded shadow hover:scale-105 transition"
                             title="Marcar como devuelto"
                           >
                             <HiCheck className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleSolicitarCarguio(s._id)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded shadow hover:scale-105 transition"
+                            title="Solicitar carguío"
+                          >
+                            🚛
                           </button>
                         </div>
                       </td>
@@ -246,7 +275,21 @@ const DevolucionesPage = () => {
             {serviciosOrdenados.map((s) => {
               const dias = calcularDiasFaltantes(s.vencimientoMemo);
               return (
-                <div key={s._id} className="bg-surface p-4 rounded shadow-md">
+                <div
+                  key={s._id}
+                  className={`relative bg-surface p-4 rounded-lg shadow-md transition 
+                    ${
+                      s.estadoCarguio === "COMPLETADO"
+                        ? "border-4 border-green-500 shadow-[0_0_12px_rgba(34,197,94,0.6)]"
+                        : "border border-neutral-700"
+                    }`}
+                >
+                  {s.estadoCarguio === "COMPLETADO" && (
+                    <span className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow">
+                      ✅ Completado
+                    </span>
+                  )}
+
                   <p>
                     <strong>Cliente:</strong> {s.cliente}
                   </p>
@@ -262,12 +305,12 @@ const DevolucionesPage = () => {
                   </p>
                   <p>
                     <strong>Faltan:</strong>{" "}
-                    <span className={`font-semibold ${getDiasClass(dias)}`}>
+                    <span className={getDiasClass(dias)}>
                       {dias === -9999
                         ? "—"
                         : dias < 0
-                        ? "VENCIDO"
-                        : `${dias} día(s)`}
+                        ? "⛔ VENCIDO"
+                        : `⏳ ${dias} día(s)`}
                     </span>
                   </p>
                   <p>
@@ -287,17 +330,24 @@ const DevolucionesPage = () => {
                   <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => setModalServicioId(s._id)}
-                      className="bg-highlight text-white p-2 rounded hover:brightness-110"
+                      className="bg-highlight text-white p-2 rounded hover:scale-105 transition"
                       title="Editar"
                     >
                       <HiPencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleMarcarDevuelto(s._id)}
-                      className="btn btn-success"
+                      className="bg-green-600 hover:bg-green-700 text-white p-2 rounded shadow hover:scale-105 transition"
                       title="Marcar como devuelto"
                     >
                       <HiCheck className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleSolicitarCarguio(s._id)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded shadow hover:scale-105 transition"
+                      title="Solicitar carguío"
+                    >
+                      🚛
                     </button>
                   </div>
                 </div>

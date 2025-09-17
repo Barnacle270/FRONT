@@ -42,6 +42,7 @@ import LecturasPage from "./pages/LecturasPage";
 import MantenimientosPage from "./pages/MantenimientosPage";
 import MantenimientosProximosPage from "./pages/MantenimientosProximosPage";
 import GeneralPage from "./pages/GeneralPage.jsx";
+import StackerPage from "./pages/StackerPage.jsx";
 
 // ✅ Layout con Sidebar colapsable
 function Layout() {
@@ -52,9 +53,8 @@ function Layout() {
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       <main
-        className={`flex-1 overflow-y-auto p-6 transition-all duration-300 ${
-          collapsed ? "md:pl-20" : "md:pl-64"
-        }`}
+        className={`flex-1 overflow-y-auto p-6 transition-all duration-300 ${collapsed ? "md:pl-20" : "md:pl-64"
+          }`}
       >
         <Toaster position="top-right" reverseOrder={false} />
 
@@ -92,6 +92,9 @@ function Layout() {
             path="/mantenimiento-pendiente"
             element={<MantenimientosProximosPage />}
           />
+
+          <Route path="/stacker" element={<StackerPage />} />
+
         </Routes>
       </main>
     </div>

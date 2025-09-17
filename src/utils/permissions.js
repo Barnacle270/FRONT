@@ -1,4 +1,3 @@
-// utils/permissions.js
 import {
   FaFileAlt,
   FaTruck,
@@ -12,6 +11,9 @@ import {
   FaTachometerAlt,
 } from "react-icons/fa";
 
+//
+// 📍 Definición de permisos por rol
+//
 export const permissions = {
   Superadministrador: {
     routes: [
@@ -40,6 +42,7 @@ export const permissions = {
         icon: FaTruck,
         children: [
           { path: "/devoluciones", label: "Ver pendientes", icon: FaTruck },
+          { path: "/stacker", label: "Pantalla Stacker", icon: FaTruck },
         ],
       },
       {
@@ -110,23 +113,20 @@ export const permissions = {
         icon: FaTruck,
         children: [
           { path: "/devoluciones", label: "Ver pendientes", icon: FaTruck },
+          { path: "/stacker", label: "Pantalla Stacker", icon: FaTruck },
         ],
       },
       {
         id: "reportes",
         label: "Reportes",
         icon: FaChartBar,
-        children: [
-          { path: "/reportes", label: "Reporte de Servicios", icon: FaChartBar },
-        ],
+        children: [{ path: "/reportes", label: "Reporte de Servicios", icon: FaChartBar }],
       },
       {
         id: "boletas",
         label: "Boletas",
         icon: FaReceipt,
-        children: [
-          { path: "/boletas", label: "Mis Boletas", icon: FaReceipt },
-        ],
+        children: [{ path: "/boletas", label: "Mis Boletas", icon: FaReceipt }],
       },
     ],
     actions: ["view", "edit", "create"],
@@ -138,9 +138,19 @@ export const permissions = {
         id: "boletas",
         label: "Boletas",
         icon: FaReceipt,
-        children: [
-          { path: "/boletas", label: "Mis Boletas", icon: FaReceipt },
-        ],
+        children: [{ path: "/boletas", label: "Mis Boletas", icon: FaReceipt }],
+      },
+    ],
+    actions: ["view"],
+  },
+
+  Almacen: {
+    routes: [
+      {
+        id: "devoluciones",
+        label: "Devoluciones",
+        icon: FaTruck,
+        children: [{ path: "/stacker", label: "Pantalla Stacker", icon: FaTruck }],
       },
     ],
     actions: ["view"],
@@ -150,18 +160,30 @@ export const permissions = {
 //
 // 🔧 Helpers
 //
+
+// Normaliza un path quitando trailing slashes
+function normalizePath(path) {
+  if (!path) return "/";
+  return path.replace(/\/+$/, "") || "/";
+}
+
+/**
+ * Verifica si un usuario puede acceder a una ruta
+ */
 export function canAccess(user, path) {
   if (!user) return false;
-  const allowed = permissions[user.role]?.routes || [];
 
-  // Verifica rutas y subrutas
+  const allowed = permissions[user.role]?.routes || [];
+  const normalizedPath = normalizePath(path);
+
   return allowed.some((menu) =>
-    menu.children?.some(
-      (child) => path === child.path || path.startsWith(child.path)
-    )
+    menu.children?.some((child) => normalizedPath === normalizePath(child.path))
   );
 }
 
+/**
+ * Verifica si un usuario puede ejecutar una acción (view, edit, etc.)
+ */
 export function canDo(user, action) {
   if (!user) return false;
   return permissions[user.role]?.actions.includes(action);

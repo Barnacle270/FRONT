@@ -54,14 +54,24 @@ function NoData({ children = "Sin datos para el periodo" }) {
 
 function Sparkline({ data = [] }) {
   if (!Array.isArray(data) || data.length === 0) {
-    return <div className="h-10 w-24 flex items-center justify-center text-white/60 text-xs">—</div>;
+    return (
+      <div className="h-10 w-24 flex items-center justify-center text-white/60 text-xs">
+        —
+      </div>
+    );
   }
   return (
     <div className="h-10 w-24">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data.map((d) => ({ name: d.x, value: d.y }))}>
           <Tooltip {...tooltipCommon} formatter={(v) => fmt.format(v)} />
-          <Line type="monotone" dataKey="value" stroke="#fff" strokeWidth={2} dot={false} />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#3B82F6"
+            strokeWidth={2}
+            dot={false}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -71,7 +81,7 @@ function Sparkline({ data = [] }) {
 function StatCard({ title, value, color, icon, delta = 0, series = [], loading }) {
   if (loading) {
     return (
-      <div className="rounded-2xl shadow-lg p-4 bg-neutral-800 animate-pulse h-28"></div>
+      <div className="rounded-2xl shadow-md p-4 bg-neutral-700 animate-pulse h-28"></div>
     );
   }
   const deltaPositive = (delta || 0) >= 0;
@@ -80,7 +90,7 @@ function StatCard({ title, value, color, icon, delta = 0, series = [], loading }
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`rounded-2xl shadow-lg p-4 text-white ${color} flex flex-col gap-2`}
+      className={`rounded-2xl shadow-md p-4 bg-surface border-l-4 ${color} flex flex-col gap-2`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -89,7 +99,7 @@ function StatCard({ title, value, color, icon, delta = 0, series = [], loading }
         </div>
         <div
           className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
-            deltaPositive ? "bg-white/20" : "bg-black/20"
+            deltaPositive ? "bg-green-600 text-white" : "bg-red-600 text-white"
           }`}
         >
           {deltaPositive ? <FaArrowUp /> : <FaArrowDown />}
@@ -106,10 +116,10 @@ function StatCard({ title, value, color, icon, delta = 0, series = [], loading }
 
 function estadoBadge(estado) {
   const e = (estado || "").toUpperCase();
-  if (e === "CONCLUIDO") return "bg-green-500/20 text-green-300";
-  if (e === "PENDIENTE") return "bg-yellow-500/20 text-yellow-300";
-  if (e === "ANULADA") return "bg-red-500/20 text-red-300";
-  return "bg-blue-500/20 text-blue-300";
+  if (e === "CONCLUIDO") return "bg-green-600 text-white";
+  if (e === "PENDIENTE") return "bg-yellow-500 text-black";
+  if (e === "ANULADA") return "bg-red-600 text-white";
+  return "bg-blue-600 text-white";
 }
 function estadoLabel(estado) {
   const e = (estado || "").toUpperCase();
@@ -121,7 +131,8 @@ function estadoLabel(estado) {
 
 function YTickCliente({ x, y, payload, maxChars = 32 }) {
   const label = String(payload.value ?? "");
-  const text = label.length > maxChars ? label.slice(0, maxChars - 1) + "…" : label;
+  const text =
+    label.length > maxChars ? label.slice(0, maxChars - 1) + "…" : label;
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dy={4} textAnchor="end" fill="#bbb" fontSize={12}>
@@ -131,7 +142,7 @@ function YTickCliente({ x, y, payload, maxChars = 32 }) {
   );
 }
 
-export default function DashboardPageV3() {
+export default function HomePage() {
   const { user } = useAuth();
   const { stats, loading, error, period, refresh } = useDashboard();
 
@@ -144,7 +155,11 @@ export default function DashboardPageV3() {
       pendientesFacturar: stats?.pendientesFacturar ?? 0,
       anuladasMesActual: stats?.anuladasMesActual ?? 0,
       deltas: stats?.deltas || {},
-      series: stats?.series || { serviciosPorDia: [], estadosPorDia: [], facturacion: [] },
+      series: stats?.series || {
+        serviciosPorDia: [],
+        estadosPorDia: [],
+        facturacion: [],
+      },
       ultimos: stats?.ultimos || [],
       topClientes: stats?.topClientes || [],
     }),
@@ -155,50 +170,68 @@ export default function DashboardPageV3() {
     {
       title: "Total Servicios",
       value: kpis.total,
-      color: "bg-blue-600",
-      icon: <FaBoxOpen className="text-white" />,
+      color: "border-blue-500",
+      icon: <FaBoxOpen className="text-blue-500" />,
       delta: kpis?.deltas?.total || 0,
-      series: (kpis.series?.serviciosPorDia || []).map((d) => ({ x: d.date, y: d.total })),
+      series: (kpis.series?.serviciosPorDia || []).map((d) => ({
+        x: d.date,
+        y: d.total,
+      })),
     },
     {
       title: "Pendientes",
       value: kpis.pendientes,
-      color: "bg-yellow-500",
-      icon: <FaClock className="text-white" />,
+      color: "border-yellow-500",
+      icon: <FaClock className="text-yellow-500" />,
       delta: kpis?.deltas?.pendientes || 0,
-      series: (kpis.series?.estadosPorDia || []).map((d) => ({ x: d.date, y: d.pendientes || 0 })),
+      series: (kpis.series?.estadosPorDia || []).map((d) => ({
+        x: d.date,
+        y: d.pendientes || 0,
+      })),
     },
     {
       title: "Concluidos",
       value: kpis.concluidos,
-      color: "bg-green-500",
-      icon: <FaCheckCircle className="text-white" />,
+      color: "border-green-500",
+      icon: <FaCheckCircle className="text-green-500" />,
       delta: kpis?.deltas?.concluidos || 0,
-      series: (kpis.series?.estadosPorDia || []).map((d) => ({ x: d.date, y: d.concluidos || 0 })),
+      series: (kpis.series?.estadosPorDia || []).map((d) => ({
+        x: d.date,
+        y: d.concluidos || 0,
+      })),
     },
     {
       title: "Facturados",
       value: kpis.facturados,
-      color: "bg-purple-600",
-      icon: <FaFileInvoiceDollar className="text-white" />,
+      color: "border-purple-500",
+      icon: <FaFileInvoiceDollar className="text-purple-500" />,
       delta: kpis?.deltas?.facturados || 0,
-      series: (kpis.series?.facturacion || []).map((d) => ({ x: d.date, y: d.facturados || 0 })),
+      series: (kpis.series?.facturacion || []).map((d) => ({
+        x: d.date,
+        y: d.facturados || 0,
+      })),
     },
     {
       title: "Pend. Facturar",
       value: kpis.pendientesFacturar,
-      color: "bg-orange-500",
-      icon: <FaHourglassHalf className="text-white" />,
+      color: "border-orange-500",
+      icon: <FaHourglassHalf className="text-orange-500" />,
       delta: kpis?.deltas?.pendientesFacturar || 0,
-      series: (kpis.series?.facturacion || []).map((d) => ({ x: d.date, y: d.pendientesFacturar || 0 })),
+      series: (kpis.series?.facturacion || []).map((d) => ({
+        x: d.date,
+        y: d.pendientesFacturar || 0,
+      })),
     },
     {
       title: "Anuladas este mes",
       value: kpis.anuladasMesActual,
-      color: "bg-red-600",
-      icon: <FaBan className="text-white" />,
+      color: "border-red-500",
+      icon: <FaBan className="text-red-500" />,
       delta: kpis?.deltas?.anuladasMesActual || 0,
-      series: (kpis.series?.estadosPorDia || []).map((d) => ({ x: d.date, y: d.anuladas || 0 })),
+      series: (kpis.series?.estadosPorDia || []).map((d) => ({
+        x: d.date,
+        y: d.anuladas || 0,
+      })),
     },
   ];
 
@@ -218,10 +251,12 @@ export default function DashboardPageV3() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="bg-neutral-900 text-white p-6 md:p-8 rounded-2xl shadow-lg"
+        className="bg-surface text-white p-6 md:p-8 rounded-2xl shadow-md"
       >
-        <h1 className="text-2xl md:text-3xl font-bold">¡Hola, {user?.name || "Usuario"}!</h1>
-        <p className="text-white/70 mt-1">Resumen de tu operación</p>
+        <h1 className="text-2xl md:text-3xl font-bold">
+          ¡Hola, {user?.name || "Usuario"}!
+        </h1>
+        <p className="text-text-secondary mt-1">Resumen de tu operación</p>
       </motion.div>
 
       {/* Period controls */}
@@ -231,10 +266,7 @@ export default function DashboardPageV3() {
             <button
               key={p}
               onClick={() => refresh({ period: p })}
-              className={`px-3 py-2 text-sm font-medium ${
-                period === p ? "bg-white text-black" : "bg-black text-white"
-              }`}
-              aria-pressed={period === p}
+              className={`btn ${period === p ? "btn-primary" : "btn-secondary"}`}
             >
               {p}
             </button>
@@ -254,16 +286,18 @@ export default function DashboardPageV3() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Servicios por día */}
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
+        <div className="bg-surface rounded-2xl p-4 shadow-md">
           <h3 className="text-white font-semibold mb-2">Servicios por día</h3>
           <div className="h-64">
             {loading ? (
-              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+              <div className="h-full bg-neutral-700 animate-pulse rounded-xl" />
             ) : serviciosPorDia.length === 0 ? (
               <NoData />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={serviciosPorDia.map((d) => ({ name: d.date, total: d.total }))}>
+                <LineChart
+                  data={serviciosPorDia.map((d) => ({ name: d.date, total: d.total }))}
+                >
                   {commonGrid}
                   <XAxis dataKey="name" {...commonAxis} />
                   <YAxis {...commonAxis} />
@@ -272,11 +306,9 @@ export default function DashboardPageV3() {
                   <Line
                     type="monotone"
                     dataKey="total"
-                    stroke="#6EE7F9"
+                    stroke="#3B82F6"
                     strokeWidth={2}
                     dot={false}
-                    isAnimationActive
-                    animationDuration={600}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -285,11 +317,11 @@ export default function DashboardPageV3() {
         </div>
 
         {/* Estados por día */}
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
+        <div className="bg-surface rounded-2xl p-4 shadow-md">
           <h3 className="text-white font-semibold mb-2">Estados por día</h3>
           <div className="h-64">
             {loading ? (
-              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+              <div className="h-full bg-neutral-700 animate-pulse rounded-xl" />
             ) : estadosPorDia.length === 0 ? (
               <NoData />
             ) : (
@@ -300,9 +332,9 @@ export default function DashboardPageV3() {
                   <YAxis {...commonAxis} />
                   <Tooltip {...tooltipCommon} formatter={(v) => fmt.format(v)} />
                   <Legend />
-                  <Bar dataKey="pendientes" stackId="a" fill="#FBBF24" isAnimationActive animationDuration={600} />
-                  <Bar dataKey="concluidos" stackId="a" fill="#34D399" isAnimationActive animationDuration={600} />
-                  <Bar dataKey="anuladas" stackId="a" fill="#F87171" isAnimationActive animationDuration={600} />
+                  <Bar dataKey="pendientes" stackId="a" fill="#FBBF24" />
+                  <Bar dataKey="concluidos" stackId="a" fill="#22C55E" />
+                  <Bar dataKey="anuladas" stackId="a" fill="#EF4444" />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -310,11 +342,11 @@ export default function DashboardPageV3() {
         </div>
 
         {/* Facturación */}
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
+        <div className="bg-surface rounded-2xl p-4 shadow-md">
           <h3 className="text-white font-semibold mb-2">Facturación</h3>
           <div className="h-64">
             {loading ? (
-              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+              <div className="h-full bg-neutral-700 animate-pulse rounded-xl" />
             ) : facturacion.length === 0 ? (
               <NoData />
             ) : (
@@ -326,11 +358,9 @@ export default function DashboardPageV3() {
                     nameKey="name"
                     outerRadius={90}
                     label
-                    isAnimationActive
-                    animationDuration={800}
                   >
                     {pieData.map((_, idx) => (
-                      <Cell key={idx} fill={["#A78BFA", "#FB923C"][idx]} />
+                      <Cell key={idx} fill={["#8B5CF6", "#FB923C"][idx]} />
                     ))}
                   </Pie>
                   <Tooltip {...tooltipCommon} formatter={(v) => fmt.format(v)} />
@@ -342,10 +372,10 @@ export default function DashboardPageV3() {
         </div>
       </div>
 
-      {/* Top clientes & Últimos */}
+      {/* Top clientes & Últimos servicios */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Top clientes */}
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg overflow-hidden">
+        <div className="bg-surface rounded-2xl p-4 shadow-md overflow-hidden">
           <h3 className="text-white font-semibold mb-2">Top clientes por servicios</h3>
           <div
             style={{
@@ -353,7 +383,7 @@ export default function DashboardPageV3() {
             }}
           >
             {loading ? (
-              <div className="h-full bg-neutral-800 animate-pulse rounded-xl" />
+              <div className="h-full bg-neutral-700 animate-pulse rounded-xl" />
             ) : (kpis.topClientes?.length ?? 0) === 0 ? (
               <NoData />
             ) : (
@@ -374,13 +404,19 @@ export default function DashboardPageV3() {
                     axisLine={false}
                     tick={<YTickCliente maxChars={32} />}
                   />
-                  <XAxis type="number" {...commonAxis} allowDecimals={false} axisLine={false} tickLine={false} />
+                  <XAxis
+                    type="number"
+                    {...commonAxis}
+                    allowDecimals={false}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip
                     {...tooltipCommon}
                     labelFormatter={(lbl) => `Cliente: ${lbl || "—"}`}
                     formatter={(v) => [`${v} servicio${v === 1 ? "" : "s"}`, "Cantidad"]}
                   />
-                  <Bar dataKey="cantidad" fill="#60A5FA" radius={[6, 6, 6, 6]} isAnimationActive animationDuration={600}>
+                  <Bar dataKey="cantidad" fill="#3B82F6" radius={[6, 6, 6, 6]}>
                     <LabelList dataKey="cantidad" position="right" className="fill-white" />
                   </Bar>
                 </BarChart>
@@ -390,17 +426,19 @@ export default function DashboardPageV3() {
         </div>
 
         {/* Últimos servicios */}
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-lg">
+        <div className="bg-surface rounded-2xl p-4 shadow-md">
           <h3 className="text-white font-semibold mb-3">Últimos servicios</h3>
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="h-64 bg-neutral-800 animate-pulse rounded-xl" />
+              <div className="h-64 bg-neutral-700 animate-pulse rounded-xl" />
             ) : (kpis.ultimos?.length ?? 0) === 0 ? (
-              <div className="py-6 text-center text-white/60 text-sm">Sin datos para el periodo</div>
+              <div className="py-6 text-center text-white/60 text-sm">
+                Sin datos para el periodo
+              </div>
             ) : (
               <table className="min-w-full border-separate border-spacing-y-2">
-                <thead className="sticky top-0 bg-neutral-900 z-10">
-                  <tr className="text-left text-white/80 text-sm">
+                <thead className="sticky top-0 bg-surface z-10">
+                  <tr className="text-left text-text-secondary text-sm">
                     <th className="px-2 py-1">Fecha</th>
                     <th className="px-2 py-1">N° Guía</th>
                     <th className="px-2 py-1">Cliente</th>
@@ -409,16 +447,23 @@ export default function DashboardPageV3() {
                   </tr>
                 </thead>
                 <tbody>
-                  {kpis.ultimos.slice(0, 8).map((r) => (
-                    <tr key={r.id} className="bg-neutral-800/60 text-white text-sm">
+                  {kpis.ultimos.slice(0, 6).map((r) => (
+                    <tr
+                      key={r.id}
+                      className="bg-neutral-800/60 hover:bg-neutral-700/40 text-white text-sm"
+                    >
                       <td className="px-2 py-2 whitespace-nowrap">{r.fecha}</td>
                       <td className="px-2 py-2 whitespace-nowrap">{r.numeroGuia}</td>
                       <td className="px-2 py-2 whitespace-nowrap" title={r.cliente}>
                         {r.cliente || "—"}
                       </td>
-                      <td className="px-2 py-2 whitespace-nowrap">{r.servicio || "—"}</td>
                       <td className="px-2 py-2 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs ${estadoBadge(r.estado)}`}>
+                        {r.servicio || "—"}
+                      </td>
+                      <td className="px-2 py-2 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${estadoBadge(r.estado)}`}
+                        >
                           {estadoLabel(r.estado)}
                         </span>
                       </td>
@@ -433,7 +478,8 @@ export default function DashboardPageV3() {
 
       {/* Footer tip */}
       <p className="text-xs text-white/50 text-center">
-        Consejo: usa los botones de periodo para comparar tendencias. Pasa el mouse sobre los gráficos para ver valores exactos.
+        Consejo: usa los botones de periodo para comparar tendencias. Pasa el mouse
+        sobre los gráficos para ver valores exactos.
       </p>
     </div>
   );

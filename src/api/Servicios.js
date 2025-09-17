@@ -13,6 +13,18 @@ export const getServiciosPendientes = async () => {
   return res.data;
 };
 
+// ✅ Obtener servicios con estado de carguío pendiente (para la tablet)
+export const getServiciosPendientesCarguio = async () => {
+  const res = await axios.get('servicios/pendientes-carguio');
+  return res.data;
+};
+
+// ✅ Actualizar estado de carguío (PENDIENTE o COMPLETADO)
+export const actualizarEstadoCarguio = async (id, estadoCarguio) => {
+  const res = await axios.put(`servicios/${id}/carguio`, { estadoCarguio });
+  return res.data;
+};
+
 // Importar servicio desde XML
 export const importarServicioDesdeXML = async (formData) => {
   const res = await axios.post('servicios/importar', formData, {

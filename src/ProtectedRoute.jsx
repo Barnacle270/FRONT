@@ -3,30 +3,30 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { canAccess } from "./utils/permissions";
 
-function ProtectedRoute({ roles }) {
+function ProtectedRoute() {
   const { loading, isAuthenticated, user } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <div>⏳ Cargando...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+        ⏳ Verificando sesión...
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // 👇 Ruta raíz (/) siempre permitida
+  // 👇 Siempre permitir "/" (pantalla de inicio general)
   if (location.pathname === "/") {
     return <Outlet />;
   }
 
-  // 👇 Validar roles solo para otras rutas
-  if (roles && !roles.includes(user?.role)) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-900 text-red-500">
-        🚫 No tienes permisos para acceder a esta página
-      </div>
-    );
+  // 👇 Validar si el usuario puede acceder a esta ruta
+  if (!canAccess(user, location.pathname)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <Outlet />;

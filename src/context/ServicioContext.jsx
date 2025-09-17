@@ -14,9 +14,11 @@ import {
   eliminarServicio,
   actualizarEstadoFacturacion,
   recepcionarServiciosLote,
-  anularServicio
+  anularServicio,
+  getServiciosPendientesCarguio,   // 👈 Nuevo
+  actualizarEstadoCarguio          // 👈 Nuevo
 } from '../api/Servicios';
-import { useAuth } from './AuthContext'; // 👈 Importar autenticación
+import { useAuth } from './AuthContext';
 
 const ServicioContext = createContext();
 
@@ -44,10 +46,11 @@ const useCargar = (fn) => {
 };
 
 export const ServicioProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth(); // 👈 Saber si hay sesión
+  const { isAuthenticated } = useAuth();
   const [servicios, setServicios] = useState([]);
   const [pendientes, setPendientes] = useState([]);
   const [noFacturados, setNoFacturados] = useState([]);
+  const [pendientesCarguio, setPendientesCarguio] = useState([]); // 👈 Nuevo
   const [error, setError] = useState(null);
 
   // 🔹 Cargas iniciales
@@ -82,6 +85,36 @@ export const ServicioProvider = ({ children }) => {
       setNoFacturados(data || []);
     } catch (err) {
       setError('Error al cargar sin facturar');
+    }
+  };
+
+  // 🔹 Cargar servicios con carguío pendiente
+  const cargarPendientesCarguio = async () => {
+    if (!isAuthenticated) return;
+    try {
+      const data = await getServiciosPendientesCarguio();
+      setPendientesCarguio(data || []);
+    } catch (err) {
+      setError('Error al cargar carguíos pendientes');
+    }
+  };
+
+  // 🔹 Actualizar estado de carguío
+  const cambiarEstadoCarguio = async (id, estado) => {
+    if (!isAuthenticated) return;
+    try {
+      const actualizado = await actualizarEstadoCarguio(id, estado);
+      toast.success(`Estado de carguío actualizado a ${estado}`);
+
+      // 🔄 Actualizar listas locales
+      setPendientesCarguio((prev) => prev.filter((s) => s._id !== id));
+      setServicios((prev) => prev.map((s) => (s._id === id ? actualizado.servicio : s)));
+      setPendientes((prev) => prev.map((s) => (s._id === id ? actualizado.servicio : s)));
+
+      return actualizado.servicio;
+    } catch (err) {
+      setError('Error al actualizar estado de carguío');
+      throw err;
     }
   };
 
@@ -228,11 +261,17 @@ export const ServicioProvider = ({ children }) => {
   // 🔹 Cargar datos iniciales solo si hay sesión
   useEffect(() => {
     if (isAuthenticated) {
-      Promise.all([cargarServicios(), cargarPendientes(), cargarServiciosSinFacturar()]);
+      Promise.all([
+        cargarServicios(),
+        cargarPendientes(),
+        cargarServiciosSinFacturar(),
+        cargarPendientesCarguio() // 👈 Ahora también cargamos los de carguío
+      ]);
     } else {
       setServicios([]);
       setPendientes([]);
       setNoFacturados([]);
+      setPendientesCarguio([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
@@ -243,11 +282,14 @@ export const ServicioProvider = ({ children }) => {
         servicios,
         pendientes,
         noFacturados,
+        pendientesCarguio,         // 👈 Nuevo
         loading: loadingServicios,
         error,
         cargarServicios,
         cargarPendientes,
         cargarServiciosSinFacturar,
+        cargarPendientesCarguio,   // 👈 Nuevo
+        cambiarEstadoCarguio,      // 👈 Nuevo
         importarXML,
         importarXMLMasivo,
         actualizarManual,
