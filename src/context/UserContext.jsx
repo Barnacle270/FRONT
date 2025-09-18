@@ -6,6 +6,7 @@ import {
   cambiarRolRequest,
   desactivarUsuarioRequest,
   activarUsuarioRequest,
+  actualizarPerfilRequest, // 👈 nuevo import
 } from "../api/usuarios";
 
 const UserContext = createContext();
@@ -33,11 +34,11 @@ export const UserProvider = ({ children }) => {
   // Crear nuevo usuario
   const crearUsuario = async (usuario) => {
     const res = await crearUsuarioRequest(usuario);
-    await cargarUsuarios(); // Recargar lista después de crear
+    await cargarUsuarios();
     return res;
   };
 
-  // Editar usuario
+  // Editar usuario (admin)
   const editarUsuario = async (id, datos) => {
     const res = await actualizarUsuarioRequest(id, datos);
     await cargarUsuarios();
@@ -65,6 +66,12 @@ export const UserProvider = ({ children }) => {
     return res;
   };
 
+  // ✅ Actualizar perfil propio
+  const actualizarPerfil = async (datos) => {
+    const res = await actualizarPerfilRequest(datos);
+    return res.data;
+  };
+
   useEffect(() => {
     cargarUsuarios();
   }, []);
@@ -80,6 +87,7 @@ export const UserProvider = ({ children }) => {
         activarUsuario,
         desactivarUsuario,
         cargarUsuarios,
+        actualizarPerfil, // 👈 expuesto al contexto
       }}
     >
       {children}

@@ -1,14 +1,18 @@
 import { useAuth } from "../context/AuthContext";
+import { useUsuarios } from "../context/UserContext"; // 👈 usamos el contexto
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 function ProfilePage() {
   const { user } = useAuth();
+  const { actualizarPerfil } = useUsuarios(); // 👈 obtenemos la función del contexto
+
   const [form, setForm] = useState({
     name: user?.name || "",
     email: user?.email || "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,11 +20,30 @@ function ProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.email) {
+      toast.error("El correo no puede estar vacío");
+      return;
+    }
+
     try {
-      // Aquí iría tu llamada real al backend
+      setLoading(true);
+
+      // 👉 Ahora usamos el endpoint /usuarios/perfil a través del contexto
+      await actualizarPerfil({
+        email: form.email,
+        password: form.password || undefined,
+      });
+
       toast.success("✅ Perfil actualizado correctamente");
+      setForm({ ...form, password: "" }); // limpiar campo contraseña
     } catch (err) {
-      toast.error("❌ No se pudo actualizar el perfil");
+      console.error(err);
+      toast.error(
+        err.response?.data?.error || "❌ No se pudo actualizar el perfil"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,7 +53,7 @@ function ProfilePage() {
         <h1 className="card-header">👤 Mi perfil</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {/* Nombre */}
+          {/* Nombre (solo lectura, pero lo puedes habilitar si quieres editarlo) */}
           <div>
             <label className="block text-sm text-text-secondary">Nombre</label>
             <input
@@ -39,10 +62,11 @@ function ProfilePage() {
               value={form.name}
               onChange={handleChange}
               className="input"
+              disabled
             />
           </div>
 
-          {/* Correo */}
+          {/* Correo editable */}
           <div>
             <label className="block text-sm text-text-secondary">Correo</label>
             <input
@@ -51,16 +75,15 @@ function ProfilePage() {
               value={form.email}
               onChange={handleChange}
               className="input"
-              disabled
+              required
             />
-            <p className="text-xs text-text-secondary mt-1">
-              El correo no puede cambiarse.
-            </p>
           </div>
 
           {/* Contraseña */}
           <div>
-            <label className="block text-sm text-text-secondary">Nueva contraseña</label>
+            <label className="block text-sm text-text-secondary">
+              Nueva contraseña
+            </label>
             <input
               type="password"
               name="password"
@@ -69,11 +92,18 @@ function ProfilePage() {
               placeholder="••••••••"
               className="input"
             />
+            <p className="text-xs text-text-secondary mt-1">
+              Deja en blanco si no quieres cambiarla.
+            </p>
           </div>
 
           {/* Botón */}
-          <button type="submit" className="btn btn-primary w-full">
-            Guardar cambios
+          <button
+            type="submit"
+            className="btn btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? "Guardando..." : "Guardar cambios"}
           </button>
         </form>
       </div>

@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { useUsuarios } from "../context/UserContext";
 import UsuarioForm from "../components/UsuarioForm";
 
+// 👇 Definimos los roles igual que en el modelo Employee
+const rolesDisponibles = [
+  "User",
+  "Administrador",
+  "Superadministrador",
+  "Coordinador",
+  "Almacen",
+];
+
 const UsuariosPage = () => {
   const {
     usuarios,
@@ -107,11 +116,11 @@ const UsuariosPage = () => {
                       }
                       className="bg-background border border-neutral-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-sky-500"
                     >
-                      <option value="usuario">Usuario</option>
-                      <option value="administrador">Administrador</option>
-                      <option value="superadministrador">
-                        Superadministrador
-                      </option>
+                      {rolesDisponibles.map((rol) => (
+                        <option key={rol} value={rol}>
+                          {rol}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td className="px-4 py-2">

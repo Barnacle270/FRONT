@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { permissions } from "../utils/permissions";
 import { ChevronDown } from "lucide-react";
@@ -9,12 +9,23 @@ function Sidebar({ collapsed, setCollapsed }) {
   const { isAuthenticated, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const location = useLocation();
 
   const role = user?.role;
   const rolePermissions = permissions[role]?.routes || [];
 
-  const toggleDropdown = (id) => {
-    setActiveDropdown((prev) => (prev === id ? null : id));
+  const toggleDropdown = (menuId) => {
+    setActiveDropdown((prev) => (prev === menuId ? null : menuId));
+  };
+
+  // 👉 Nueva función: si está colapsado, auto-expande al hacer click
+  const handleMenuClick = (menuId) => {
+    if (collapsed) {
+      setCollapsed(false); // expandir sidebar
+      setActiveDropdown(menuId); // abrir el dropdown
+    } else {
+      toggleDropdown(menuId);
+    }
   };
 
   return (
@@ -37,8 +48,6 @@ function Sidebar({ collapsed, setCollapsed }) {
         {/* Logo + toggle desktop */}
         <div className="flex items-center justify-between p-6 border-b border-zinc-800">
           <div className="flex items-center gap-2">
-
-            {/* Texto TRANSPORTES J (oculto si está colapsado) */}
             {!collapsed && (
               <Link
                 to="/"
@@ -66,8 +75,13 @@ function Sidebar({ collapsed, setCollapsed }) {
               rolePermissions.map((menu) => (
                 <li key={menu.id}>
                   <button
-                    onClick={() => toggleDropdown(menu.id)}
-                    className="flex items-center justify-between w-full px-3 py-2 text-gray-300 hover:bg-zinc-800 hover:text-white rounded-md transition-colors text-sm"
+                    onClick={() => handleMenuClick(menu.id)}
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors text-sm
+                      ${
+                        location.pathname.startsWith(menu.basePath)
+                          ? "bg-indigo-600 text-white"
+                          : "text-gray-300 hover:bg-zinc-800 hover:text-white"
+                      }`}
                   >
                     <span className="flex items-center gap-3">
                       <menu.icon className="h-5 w-5" />
@@ -82,13 +96,19 @@ function Sidebar({ collapsed, setCollapsed }) {
                     )}
                   </button>
 
+                  {/* Submenús */}
                   {activeDropdown === menu.id && !collapsed && (
-                    <ul className="ml-6 mt-1 space-y-1">
+                    <ul className="ml-6 mt-1 space-y-1 overflow-hidden transition-all">
                       {menu.children.map((child) => (
                         <li key={child.path}>
                           <Link
                             to={child.path}
-                            className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-zinc-800 hover:text-white rounded-md transition-colors text-sm"
+                            className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm
+                              ${
+                                location.pathname === child.path
+                                  ? "bg-indigo-600 text-white"
+                                  : "text-gray-300 hover:bg-zinc-800 hover:text-white"
+                              }`}
                             onClick={() => setMobileOpen(false)}
                           >
                             <child.icon className="h-4 w-4" />
@@ -113,8 +133,6 @@ function Sidebar({ collapsed, setCollapsed }) {
             )}
           </ul>
         </nav>
-
-
       </aside>
     </>
   );

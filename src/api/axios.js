@@ -1,11 +1,29 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode"; // 👈 import correcto
 
+// 🔹 Helper: loguear en consola cuándo expira el token
+const logTokenExp = (token) => {
+  try {
+    const { exp } = jwtDecode(token); // { exp: timestamp en segundos }
+    const ms = exp * 1000 - Date.now();
+    console.log(
+      `⏳ Nuevo access token expira en ${Math.floor(ms / 60000)}m ${Math.floor(
+        (ms / 1000) % 60
+      )}s`
+    );
+  } catch {
+    console.warn("No se pudo decodificar el token");
+  }
+};
+
+// Instancia principal de Axios
 const instance = axios.create({
-  baseURL: "https://back-2vwn.onrender.com/api/",
-  withCredentials: true, // necesario para enviar la cookie de refresh
+  baseURL:
+    import.meta.env.VITE_API_URL || "http://localhost:4000/api/",
+  withCredentials: true,
 });
 
-// 🔹 Interceptor de request
+// 🔹 Interceptor de request: agrega token
 instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
@@ -17,13 +35,12 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 🔹 Interceptor de respuesta
+// 🔹 Interceptor de respuesta: refresh automático
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Evitar loop infinito
     if (originalRequest.url.includes("/v2/refresh")) {
       return Promise.reject(error);
     }
@@ -36,14 +53,18 @@ instance.interceptors.response.use(
         const newAccessToken = res.data.accessToken;
 
         localStorage.setItem("accessToken", newAccessToken);
+        logTokenExp(newAccessToken); // 👈 log expiración
 
-        instance.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+        instance.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
         return instance(originalRequest);
       } catch (err) {
         localStorage.removeItem("accessToken");
-        window.location.href = "/login";
+        window.dispatchEvent(new Event("sessionExpired"));
+        return Promise.reject(err);
       }
     }
 

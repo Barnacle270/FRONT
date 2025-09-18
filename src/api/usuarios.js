@@ -8,7 +8,7 @@ export const crearUsuarioRequest = (usuario) =>
 export const obtenerUsuariosRequest = () =>
   axios.get(`/usuarios`);
 
-// Actualizar usuario por ID
+// Actualizar usuario por ID (solo admins)
 export const actualizarUsuarioRequest = (id, datos) =>
   axios.put(`/usuarios/${id}`, datos);
 
@@ -23,3 +23,7 @@ export const desactivarUsuarioRequest = (id) =>
 // Activar usuario
 export const activarUsuarioRequest = (id) =>
   axios.patch(`/usuarios/${id}/activar`);
+
+// ✅ Nuevo: actualizar perfil propio (correo y/o contraseña)
+export const actualizarPerfilRequest = (datos) =>
+  axios.put(`/usuarios/perfil`, datos);

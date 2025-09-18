@@ -155,6 +155,68 @@ export const permissions = {
     ],
     actions: ["view"],
   },
+
+  Administrador: {
+    routes: [
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        icon: FaTachometerAlt,
+        children: [
+          { path: "/home", label: "Transporte", icon: FaTruck },
+          { path: "/profile", label: "Perfil", icon: FaUserTie },
+        ],
+      },
+      {
+        id: "servicios",
+        label: "Servicios",
+        icon: FaFileAlt,
+        children: [
+          { path: "/servicios", label: "Importar XML", icon: FaFileAlt },
+          { path: "/historial", label: "Historial de Servicios", icon: FaFileAlt },
+          { path: "/recepcion-facturas", label: "Recepción Guías", icon: FaFileAlt },
+        ],
+      },
+      {
+        id: "devoluciones",
+        label: "Devoluciones",
+        icon: FaTruck,
+        children: [
+          { path: "/devoluciones", label: "Ver pendientes", icon: FaTruck },
+          { path: "/stacker", label: "Pantalla Stacker", icon: FaTruck },
+        ],
+      },
+      {
+        id: "reportes",
+        label: "Reportes",
+        icon: FaChartBar,
+        children: [
+          { path: "/reportes", label: "Reporte de Servicios", icon: FaChartBar },
+          { path: "/reportes/pendientes-facturar", label: "Pendientes Facturar", icon: FaFileAlt },
+        ],
+      },
+      {
+        id: "boletas",
+        label: "Boletas",
+        icon: FaReceipt,
+        children: [
+          { path: "/boletas", label: "Mis Boletas", icon: FaReceipt },
+          { path: "/add-boletas", label: "Agregar Boleta", icon: FaReceipt },
+        ],
+      },
+      {
+        id: "datos",
+        label: "Datos",
+        icon: FaUsers,
+        children: [
+          { path: "/clientes", label: "Clientes", icon: FaUsers },
+          { path: "/conductores", label: "Conductores", icon: FaUserTie },
+        ],
+      },
+    ],
+    actions: ["view", "edit", "delete", "create"],
+  },
+
 };
 
 //
